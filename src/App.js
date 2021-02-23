@@ -1,25 +1,63 @@
-import logo from './logo.svg';
+import { Component } from 'react';
+import { Container } from 'react-bootstrap';
+import { connect } from 'react-redux';
+import { Redirect, Route, Switch, withRouter } from 'react-router-dom';
 import './App.css';
+import Auth from './components/ui/auth/Auth';
+import Home from './components/ui/home/Home';
+import Logout from './components/ui/logout/Logout';
+import NavBar from './components/ui/nav/NavBar';
+import * as actions from './store/auth/actions';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+/**
+ * 
+ * @author Attila Barna
+ */
+class App extends Component {
+
+  componentDidMount () {
+    this.props.onAutoSignup();
+  }
+
+  render () {
+    let routes = (
+      <Switch>
+        <Route path="/auth" component={Auth} />
+        <Route path="/home" exact component={Home} />
+        <Route path="*" component={Home} />
+      </Switch>
+    );
+
+    if ( this.props.isAuthenticated ) {
+      routes = (
+        <Switch>
+          <Route path="/logout" component={Logout} />
+          <Route path="/home" exact component={Home} />
+          <Redirect to="/" />
+        </Switch>
+      );
+    } 
+
+    return (
+        <Container>
+          <NavBar/>
+            {routes}
+        </Container>
+    );
+  }
 }
 
-export default App;
+const states = state => {
+  return {
+    isAuthenticated: state.auth.authenticated
+  };
+};
+
+const dispatches = dispatch => {
+  return {
+    onAutoSignup: () => dispatch( actions.authCheckState() )
+  };
+};
+
+export default withRouter( connect( states, dispatches )( App ) );
