@@ -7,6 +7,7 @@ import Auth from './components/ui/auth/Auth';
 import Home from './components/ui/home/Home';
 import Logout from './components/ui/logout/Logout';
 import NavBar from './components/ui/nav/NavBar';
+import SideNavBar from './components/ui/sidenav/SideNavBar';
 import * as actions from './store/auth/actions';
 
 
@@ -40,7 +41,8 @@ class App extends Component {
     } 
 
     return (
-        <Container>
+      <Container>
+          <SideNavBar/>
           <NavBar/>
             {routes}
         </Container>

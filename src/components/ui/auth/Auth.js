@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import * as actions from '../../../store/auth/actions';
 import Input from '../input/FormInputElement';
-import { Button, Col, Form, Row } from 'react-bootstrap';
+import { Button, Card, Col, Form, Row, Alert } from 'react-bootstrap';
 import UIErrorHandler from '../handler/ErrorHandler';
 import axios from '../../../HttpClient';
 import { checkValidity } from '../../../config/config';
@@ -93,7 +93,11 @@ class Auth extends Component {
         ) )
 
         if (this.props.error) {
-            errorMessage = (<p>{this.props.error.message}</p>)
+            errorMessage = ( 
+              <Alert variant="danger">
+                {this.props.error.message}
+              </Alert>
+              )
         }
 
         let authRedirect = null
@@ -109,10 +113,18 @@ class Auth extends Component {
                 </Row>
                 <Row md={12}>
                     <Col md={12}>
-                        <Form ref={this.form} onSubmit={this.submitHandler}>
-                            {form}
-                            <Button disabled={form.filter(e => e.props.value === '').length > 0} type="submit">SUBMIT</Button>
-                        </Form>
+                        <Card>
+                            <Card.Header as="h5">Authentication</Card.Header>
+                            <Card.Body>
+                                <Card.Title>Sign in</Card.Title>
+
+                                    <Form ref={this.form} onSubmit={this.submitHandler}>
+                                        {form}
+                                        <Button disabled={form.filter(e => e.props.value === '').length > 0} type="submit">SUBMIT</Button>
+                                    </Form>
+
+                            </Card.Body>
+                        </Card>
                     </Col>
                 </Row>
               </Col>

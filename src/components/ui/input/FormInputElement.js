@@ -73,7 +73,7 @@ const input = ( props ) => {
 
     return (
         <FormGroup  {...props.groupConfig}>
-            <FormLabel>{props.label}</FormLabel>
+            <FormLabel>{props.label}:</FormLabel>
             {element}        
         </FormGroup>
     );
