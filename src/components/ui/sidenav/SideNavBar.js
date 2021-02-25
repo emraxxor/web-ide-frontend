@@ -10,7 +10,7 @@ import "@trendmicro/react-sidenav/dist/react-sidenav.css";
 import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHome, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
-import { Redirect, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 
 const SideNavBar = ( props, children ) => {
@@ -30,14 +30,13 @@ const SideNavBar = ( props, children ) => {
       )
     }
 
-
     return (
         <SideNav
           onSelect={onSelected}
         >
           <SideNav.Toggle />
           <SideNav.Nav defaultSelected="home">
-            <NavItem eventKey="auth">
+            <NavItem eventKey={auth.authenticated ? 'home' : 'auth'}>
               <NavIcon>
                 <FontAwesomeIcon icon={faHome} style={{fontSize: "1.75em" }}/>
               </NavIcon>
