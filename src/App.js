@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { Redirect, Route, Switch, withRouter } from 'react-router-dom';
 import './App.css';
 import Auth from './components/ui/auth/Auth';
+import Registration from './components/ui/auth/Registration';
 import Home from './components/ui/home/Home';
 import Logout from './components/ui/logout/Logout';
 import NavBar from './components/ui/nav/NavBar';
@@ -25,6 +26,7 @@ class App extends Component {
     let routes = (
       <Switch>
         <Route path="/auth" component={Auth} />
+        <Route path="/registration" component={Registration} />
         <Route path="/home" exact component={Home} />
         <Route path="*" component={Home} />
       </Switch>

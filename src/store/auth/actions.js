@@ -63,10 +63,8 @@ export const auth = (username, password) => {
             username,
             password
         };
-
-        let url = '/authenticate';
      
-        axios.post(url, authData)
+        axios.post(`/authenticate`, authData)
             .then(response => {
                 const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
                 const { token, userId, neptunId } = response.data;
@@ -76,7 +74,7 @@ export const auth = (username, password) => {
             })
             .catch(err => {
                 dispatch(authFail({message:'Invalid email or password.'}));
-            });
+        });
     };
 };
 

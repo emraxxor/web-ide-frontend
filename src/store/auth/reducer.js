@@ -1,5 +1,5 @@
 import * as actionTypes from './actions';
-import { updateObject } from '../utility';
+import { update } from '../utility';
 import axios from '../../HttpClient';
 
 const initialState = {
@@ -13,16 +13,16 @@ const initialState = {
 };
 
 const authStart = ( state, action ) => {
-    return updateObject( state, { error: null, loading: true } );
+    return update( state, { error: null, loading: true } );
 };
 
 const authInfo = ( state, action ) => {
-    return updateObject( state,  { user: action.data } );
+    return update( state,  { user: action.data } );
 };
 
 const authSuccess = (state, action) => {
     axios.defaults.headers.common['authorization'] = `Bearer ${action.idToken}`;
-    return updateObject( state, { 
+    return update( state, { 
         token: action.idToken,
         userId: action.userId,
         neptunId: action.neptunId,
@@ -33,18 +33,18 @@ const authSuccess = (state, action) => {
 };
 
 const authFail = (state, action) => {
-    return updateObject( state, {
+    return update( state, {
         error: action.error,
         loading: false
     });
 };
 
 const authLogout = (state, action) => {
-    return updateObject(state, { token: null, userId: null, authenticated: false, neptunId: null });
+    return update(state, { token: null, userId: null, authenticated: false, neptunId: null });
 };
 
 const setAuthRedirectPath = (state, action) => {
-    return updateObject(state, { authRedirectPath: action.path })
+    return update(state, { authRedirectPath: action.path })
 }
 
 const reducer = ( state = initialState, action ) => {

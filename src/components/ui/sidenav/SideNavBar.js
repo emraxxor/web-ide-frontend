@@ -33,6 +33,7 @@ const SideNavBar = ( props, children ) => {
     return (
         <SideNav
           onSelect={onSelected}
+          style={ {position: 'fixed'} }
         >
           <SideNav.Toggle />
           <SideNav.Nav defaultSelected="home">

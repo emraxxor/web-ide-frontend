@@ -18,7 +18,12 @@ const NavBar = ( props, children ) => {
     if ( auth.authenticated ) {
         logout = <Nav.Link href="/logout">Logout</Nav.Link>
     } else {
-        login =  <Nav.Link href="/auth">Login</Nav.Link>
+        login =  ( 
+            <>
+            <Nav.Link href="/auth">Login</Nav.Link>
+            <Nav.Link href="/registration">Registration</Nav.Link>
+            </> 
+        )
     }
     
     
