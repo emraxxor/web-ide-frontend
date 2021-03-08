@@ -1,8 +1,15 @@
 import { Component } from 'react';
-import { Button, Card, Col, Row } from 'react-bootstrap';
+import { Button, Card, Col, ListGroup, Row, Modal } from 'react-bootstrap';
 import { connect } from 'react-redux';
+import styled from 'styled-components';
 import axios from '../../../HttpClient';
 import UIErrorHandler from '../handler/ErrorHandler';
+import JSONPretty from 'react-json-prettify';
+
+const ProjectItem = styled.div`
+  cursor: pointer;
+  overflow: hidden;
+`;
 
 
 /**
@@ -10,13 +17,32 @@ import UIErrorHandler from '../handler/ErrorHandler';
  */
 class UserHomePage extends Component {
 
-    componentDidMount() {
+    state = {
+        showProjectModal: false,
+        project : {
+            name: '',
 
+        }
+    }
+
+
+    componentDidMount() {
     }
 
 
     componentDidUpdate() {
+    }
 
+    onShowProject(project) {
+        this.setState({
+            ...this.state,
+            showProjectModal: true,
+            project
+        });
+    }
+
+    handleCloseModalWindow() {
+        this.setState({...this.state,showProjectModal:false})
     }
 
     render() {
@@ -25,6 +51,20 @@ class UserHomePage extends Component {
             return (<></>)
 
         return (
+            <>
+            <Modal size="xl" show={this.state.showProjectModal} onHide={e => this.handleCloseModalWindow()}>
+                <Modal.Header closeButton>
+                <Modal.Title>{this.state.project.name}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body><JSONPretty json={this.state.project}/></Modal.Body>
+                <Modal.Footer>
+                <Button variant="secondary" onClick={ e => this.handleCloseModalWindow()}>
+                    Close
+                </Button>
+                </Modal.Footer>
+            </Modal>
+
+
             <Row>
                 <Col md="6">
                        <Card>
@@ -41,15 +81,25 @@ class UserHomePage extends Component {
                 </Col>
                 <Col md="6">
                        <Card>
-                            <Card.Header as="h5">Containers</Card.Header>
+                            <Card.Header as="h5">Projects</Card.Header>
                             <Card.Body>
-                                <Card.Title>Active containers</Card.Title>
+                                <Card.Title>Active projects</Card.Title>
 
+                                <ListGroup>
+                                 {
+                                     this.props.projects.map(
+                                        e => 
+                                                <ListGroup.Item key={e.identifier} onClick={x => this.onShowProject(e)} ><ProjectItem>{e.name} ( {e.identifier})</ProjectItem></ListGroup.Item>
+                                                
+                                    )
+                                 }
+                                </ListGroup>
                                
                             </Card.Body>
                         </Card>
                 </Col>
             </Row>
+            </>
         )
     }
 }
@@ -57,7 +107,9 @@ class UserHomePage extends Component {
 
 
 const states = state => {
-    return {};
+    return {
+        projects: state.project.projects,
+    };
 };
 
 const dispatches = dispatch => {
