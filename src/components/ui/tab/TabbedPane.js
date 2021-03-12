@@ -1,13 +1,16 @@
-import { useState } from "react";
+import {  useState } from "react";
 import { Tab, Tabs } from "react-bootstrap";
 
 
-
-const TabbedPane = ({ data }) => {
-
-    const [key, setKey] = useState('home');
+/**
+ * 
+ * @author Attila Barna 
+ */
+const TabbedPane = ({ props, data }) => {
+    const [key, setKey] = useState(`${data[0].eventKey}-0`);
 
     return (
+
         <Tabs
             id="project-manager"
             activeKey={key}
@@ -17,20 +20,19 @@ const TabbedPane = ({ data }) => {
 
                 if (item.type === 'component') {
                   return (  
-                             <Tab key={ix} eventKey={`${item.eventKey}-${ix}`} title={item.title}>
-                              {item.component}
-                             </Tab> 
+                        <Tab key={ix} {...props} eventKey={`${item.eventKey}-${ix}`} title={`${item.title} ${!item.saved ? '(*)' : ''}`}>
+                             {item.component}
+                        </Tab> 
                   )
                 }
            
             })}
-
-        <Tab eventKey="home" title="Home">
-            Empty
-        </Tab>
         
+             
         </Tabs>
     )
+
+    
 };
 
 export default TabbedPane;

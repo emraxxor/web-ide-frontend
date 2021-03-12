@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import axios from '../../../HttpClient';
 import UIErrorHandler from '../handler/ErrorHandler';
 import JSONPretty from 'react-json-prettify';
+import { Link, NavLink } from 'react-router-dom';
 
 const ProjectItem = styled.div`
   cursor: pointer;
@@ -25,6 +26,10 @@ class UserHomePage extends Component {
         }
     }
 
+    constructor(props) {
+        super(props)
+        this.handleCloseModalWindow = this.handleCloseModalWindow.bind(this)
+    }
 
     componentDidMount() {
     }
@@ -52,13 +57,18 @@ class UserHomePage extends Component {
 
         return (
             <>
-            <Modal size="xl" show={this.state.showProjectModal} onHide={e => this.handleCloseModalWindow()}>
+            <Modal size="xl" show={this.state.showProjectModal} onHide={this.handleCloseModalWindow}>
                 <Modal.Header closeButton>
                 <Modal.Title>{this.state.project.name}</Modal.Title>
                 </Modal.Header>
-                <Modal.Body><JSONPretty json={this.state.project}/></Modal.Body>
+                <Modal.Body>
+                    <NavLink to={{ pathname: `/project/${this.state.project.id}` }}>
+                        <Button variant="primary">Open</Button>
+                    </NavLink>
+                    <JSONPretty json={this.state.project}/>
+                </Modal.Body>
                 <Modal.Footer>
-                <Button variant="secondary" onClick={ e => this.handleCloseModalWindow()}>
+                <Button variant="secondary" onClick={this.handleCloseModalWindow}>
                     Close
                 </Button>
                 </Modal.Footer>
@@ -89,7 +99,7 @@ class UserHomePage extends Component {
                                  {
                                      this.props.projects.map(
                                         e => 
-                                                <ListGroup.Item key={e.identifier} onClick={x => this.onShowProject(e)} ><ProjectItem>{e.name} ( {e.identifier})</ProjectItem></ListGroup.Item>
+                                                <ListGroup.Item key={e.identifier} onClick={() => this.onShowProject(e)} ><ProjectItem>{e.name} ( {e.identifier})</ProjectItem></ListGroup.Item>
                                                 
                                     )
                                  }

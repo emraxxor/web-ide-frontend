@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { AiOutlineFolder } from 'react-icons/ai';
 import styled from 'styled-components';
+import { ProjectContext } from '../../../context/ProjectContext';
 import './Folder.scss'
 
 const Collapsible = styled.div`
@@ -9,18 +10,27 @@ const Collapsible = styled.div`
   overflow: hidden;
 `;
 
+/**
+ * 
+ * @author Attila Barna 
+ */
 
-const Folder = ({ name, children }) => {
+const Folder = ({ name, children, item }) => {
     const [isOpen, setIsOpen] = useState(false);
-  
+    const ctx = useContext(ProjectContext)
+    const folderLabel = useRef(null)
+
     const handleToggle = e => {
-      e.preventDefault();
-      setIsOpen(!isOpen);
+      e.preventDefault();    
+      ctx.changeWorkingDirectory(item)
+      setIsOpen(!isOpen)
+      // # State hack
+      folderLabel.current.click();
     };
-  
+
     return (
       <div className="folder">
-        <div className="folder--label" onClick={handleToggle}>
+        <div ref={folderLabel} className="folder--label" onClick={handleToggle}>
           <AiOutlineFolder />
           <span>{name}</span>
         </div>

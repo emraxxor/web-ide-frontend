@@ -3,26 +3,11 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { applyMiddleware, combineReducers, compose, createStore } from 'redux';
-import authReducer from './store/auth/reducer';
-import projectReducer from './store/project/reducer';
-import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 //import 'bootstrap/dist/css/bootstrap.min.css';
 import './theme/material/material.css';
-
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-
-const rootReducer = combineReducers({
-  auth: authReducer,
-  project: projectReducer
-});
-
-const store = createStore(rootReducer, composeEnhancers(
-  applyMiddleware(thunk)
-));
-
+import { store } from './store/store';
 
 const app = (
   <Provider store={store}>
