@@ -1,9 +1,9 @@
-export const PROXY = {
+ export const PROXY = {
     host: 'http://localhost',
     port: 8090
 }
 
-export const DefaultConfiguration = {
+ export const DefaultConfiguration = {
     USER_STORAGE_KEY : 'user',
     USER_ID : 'userId',
     NEPTUN_ID : 'neptunId',
@@ -11,7 +11,11 @@ export const DefaultConfiguration = {
     TOKEN_STORAGE_KEY : 'token'
  };
  
-
+ export const ACTION = {
+     SAVE : 'SAVE',
+     OK: 'OK',
+     CANCEL: 'CANCEL'
+ }
 
  export const DefaultLocalStorage = {
 

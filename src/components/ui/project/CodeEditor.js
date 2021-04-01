@@ -1,6 +1,9 @@
 import Editor from "@monaco-editor/react";
-import { useRef } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Col, Row } from "react-bootstrap";
+import { ACTION } from "../../../config/config";
+import { ProjectContext } from "../../../context/ProjectContext";
+import ProjectCreateNewFile from "./ProjectCreateNewFile";
 
 /**
  * 
@@ -11,24 +14,74 @@ import { Col, Row } from "react-bootstrap";
  */
 const CodeEditor = ( props, children ) => {
 
-    const editorRef = useRef(null);
+    const editorRef = useRef(null)
+    const monacoRef = useRef(null)
+    const ctx = useContext(ProjectContext)
+    const workdir = ctx.workdir 
+    const [mounted, setMounted] = useState(false)
+    const [displayNewFileComponent, setDisplayNewFileComponent] = useState(false)
+    const {item} = props
 
-    function handleEditorDidMount(editor, monaco) {
-      editorRef.current = editor; 
+    async function handleEditorDidMount(editor, monaco) {
+      editorRef.current = editor;
+      monacoRef.current = monaco
+      setMounted(true)
     }
+
+
+    function handleFileDialogActionListener(action) {
+            if ( action.type === ACTION.SAVE ) {
+                ctx.saveProjectFile(
+                    {item : {    
+                        ...item,
+                        ...{
+                            saved: false,
+                            folder: workdir,
+                            name: action.data.file.name
+                        }
+                    }},
+                    editorRef.current.getValue()
+                ).then( res => ctx.refreshProjectDirectory() );
+            }
+            setDisplayNewFileComponent(false)
+    }
+
+    useEffect( () => {
+        const editor = editorRef.current
+        const monaco = monacoRef.current
+
+        if ( editor ) {
+            editor.addCommand(monaco.KeyMod.CtrlCmd + monaco.KeyCode.KEY_S, () => {                
+                if ( props && props.item && props.item.item.name ) {
+                    ctx.saveProjectFile({item: {...props.item.item, componentId:item.componentId}}, editor.getValue()  )
+                } else {
+                    setDisplayNewFileComponent(true)
+                }
+            });
+    
+            editor.onDidChangeModelContent( (e) => {
+                ctx.actionOnProjectEditor({...props, ...{action: 'change'}})
+            });
+        }
+  
+    } , [workdir,mounted] ); 
+
   
     return (
-      <Row>
-          <Col>
-                <Editor
-                    height="90vh"
-                    theme="vs-dark"
-                    defaultLanguage={props.language ?? 'javascript'}
-                    defaultValue={props.value ?? ''}
-                    onMount={handleEditorDidMount}
-                />
-          </Col>
-      </Row>
+        <>
+        <ProjectCreateNewFile displayComponent={displayNewFileComponent} actionListener={handleFileDialogActionListener}></ProjectCreateNewFile>
+        <Row>
+            <Col>
+                    <Editor
+                        height="90vh"
+                        theme="vs-dark"
+                        defaultLanguage={props.language ?? 'javascript'}
+                        defaultValue={props.value ?? ''}
+                        onMount={handleEditorDidMount}
+                    />
+            </Col>
+        </Row>
+        </>
     );
   
     

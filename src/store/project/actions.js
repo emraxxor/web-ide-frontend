@@ -47,11 +47,30 @@ export const setProjectFiles = ( files ) => {
     };
 }
 
+export const actionReloadWorkingDirectory = (projectId, folder) => async dispatch => {
+    axios
+        .get(`/api/project-filemanager/${projectId}?dir=${folder}`)
+        .then(resp =>  dispatch( setProjectFiles(resp.data.object) ) ) ; 
+}
+
 export const actionUpdateWorkingDirectory = ( projectId, folder, name ) => async dispatch => {
     dispatch( setWorkingDirectory(folder,name) )
 
-    axios.get(`/api/project-filemanager/${projectId}?dir=${folder}${name}`)
-    .then(resp =>  dispatch( setProjectFiles(resp.data.object) ) ) ; 
+    axios
+        .get(`/api/project-filemanager/${projectId}?dir=${folder}${name}`)
+        .then(resp =>  dispatch( setProjectFiles(resp.data.object) ) ) ; 
+} 
+
+export const actionRemoveProjectFile = ( projectId, folder, name ) => async dispatch => {
+    return new Promise( (resolve, reject) => {
+        axios
+            .delete(`/api/project-filemanager/${projectId}/file/${folder}${name}`)
+            .then(res =>  { 
+                dispatch(actionReloadWorkingDirectory(projectId,folder))
+                resolve(res)
+             }  ) 
+            .catch(err => reject(err) ) 
+    } );
 } 
 
 

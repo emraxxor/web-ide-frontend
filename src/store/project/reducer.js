@@ -27,7 +27,6 @@ const setWorkingDirectory = (state,action) => {
 };
 
 const setProjectTree = (state,action) => {
-    console.log('SET PROJECT TREE --> REDUCER')
     const currentProject = state.currentProject
     currentProject.projectTree = action.tree
     console.log(currentProject)

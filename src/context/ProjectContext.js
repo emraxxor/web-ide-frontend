@@ -2,9 +2,10 @@ import React, { createContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import CodeEditor from "../components/ui/project/CodeEditor";
-import { actionInitProject, actionUpdateWorkingDirectory } from "../store/project/actions";
+import { actionInitProject, actionReloadWorkingDirectory, actionRemoveProjectFile, actionUpdateWorkingDirectory } from "../store/project/actions";
 import {store} from "../store/store"
 import axios from '../HttpClient';
+import idGenerator from "react-id-generator";
 
 export const ProjectContext = createContext();
 
@@ -17,15 +18,25 @@ export default function ProjectContextProvider({ props, children }) {
     const files = useSelector( state => state.project.files )
     const workdir = useSelector(state => state.project.currentProject.workdir)
     const [treeData, setTreeData] = useState([])
+    const [displayProjectProperties,setDisplayProjectProperties] = useState(false)
+    const [displayProjectCommandDialog,setDisplayProjectCommandDialog] = useState(false)
+    const [displayProjectInspectorDialog,setDisplayProjectInspectorDialog] = useState(false)
+    const [containerInformation,setContainerInformaton] = useState(null)
+    const [projectSpinner, setProjectSpinner] = useState((<></>))
+
     const [tabs, setTabs] = useState(
         [
             {
                 type: 'component',
                 title: 'New file',
                 saved: false,
-                item: null,
+                componentId: idGenerator(),
+                item: {
+                    componentId: idGenerator(),
+                    saved: false
+                },
                 eventKey: 'editor',
-                component: ( <CodeEditor {...props} value='' /> )
+                component: ( <CodeEditor {...props} item={ {saved: false} } value='' /> )
             }
         ]
     )
@@ -52,12 +63,119 @@ export default function ProjectContextProvider({ props, children }) {
             return 'sql'
         } else if ( ext === 'py' ) {
             return 'python'
-        }
-
+        } else if ( ext === 'json' ) {
+            return 'json'
+        } 
     }
 
     const changeWorkingDirectory = (item) => {
         store.dispatch(actionUpdateWorkingDirectory(id, item.folder,item.name))
+    }
+
+    const refreshProjectDirectory = () => {
+        store.dispatch(actionReloadWorkingDirectory(id, workdir))
+    }
+
+    const actionOnProjectEditor = (el) => {
+            const { item } = el
+            if ( item && el.action === 'change' ) {
+                let stabs = [...tabs]
+                let stab = stabs.find( e => e.componentId === item.componentId )
+                stab.item.saved = false
+                setTabs(stabs)
+            }
+    }
+
+    const removeProjectFile = async (item) => {
+        return store.dispatch( actionRemoveProjectFile (id, item.folder,item.name))
+    }
+
+
+    const removeTab = (tab) => {
+        let stabs = [...tabs].filter( e => e.componentId && e.componentId !== tab.componentId )
+        if ( stabs.length > 0 )
+            setTabs(stabs)
+    }
+
+    const renameProjectFile = async (item,{action}) => {
+        if ( item && item.name ) {
+            let { folder, name } = item 
+            if ( folder == '/' ) 
+                folder = '';
+
+            const data = {
+                type : 'FILE',
+                name : action.data.file.name,
+                data : 'FAKE'
+            }
+
+            return new Promise( (resolve,reject) => {
+                    axios
+                        .put(`/api/project-filemanager/${id}/rename/file/${folder}/${name}`, data)
+                        .then(resp =>  {
+                            if ( resp.status === 202 ) {
+                                let stabs = [...tabs]
+                                let stab = stabs.find( e => e.item && e.item.componentId && e.item.componentId === item.componentId )
+                                if ( stab ) {
+                                    stab.item = item
+                                    stab.item.name = action.data.file.name
+                                    stab.title = action.data.file.name
+                                    stab.item.saved = true
+                                    setTabs(stabs)
+                                }                             
+                                store.dispatch(actionReloadWorkingDirectory(id, workdir))         
+                                resolve( {resp,tabs,item} )
+                            }
+                        })
+                        .catch( err => reject(err) )
+            });
+
+        } 
+    }    
+
+    const saveProjectFile = async (element, data) => {
+        const { item } = element
+
+        if ( item && item.name ) {
+            let { folder, name } = item 
+            if ( folder == '/' ) 
+                folder = '';
+
+            return new Promise( (resolve,reject) => {
+                    axios
+                        .put(`/api/project-filemanager/${id}/file/${folder}/${name}`, {data})
+                        .then(resp =>  {
+                            if ( resp.status === 202 ) {
+                                let stabs = [...tabs]
+                                let stab = stabs.find( e => e.componentId === item.componentId )
+                                if ( !stab.item.name ) {
+                                    stab.item = item
+                                    stab.title = item.name
+                                }
+                                stab.item.saved = true
+                                setTabs(stabs)                    
+                                resolve( {resp,tabs,item} )
+                            }
+                        })
+                        .catch( err => reject(err) )
+            });
+
+        } 
+    }    
+
+    const startProject = async () => {
+        return new Promise( (resolve,reject )  =>  {
+                    axios
+                    .post(`/api/project/start/${id}`,{})
+                    .then(resp => { 
+                            if ( resp.data.code === 1 ) {
+                                setContainerInformaton(resp.data.object)
+                                resolve(resp.data.object)
+                            }
+                        
+                     })
+                    .catch(err => reject(err))  
+        });
     }
 
     const openProjectFile = (item) => {
@@ -65,16 +183,23 @@ export default function ProjectContextProvider({ props, children }) {
         if ( folder == '/' ) 
             folder = '';
 
+        if ( !item.saved ) 
+            item.saved = false
+        
+        if ( tabs.find(e => e.item && e.item.componentId && e.item.componentId === item.componentId ) )
+            return 
+
         axios
             .get(`/api/project-filemanager/${id}/file/${folder}/${name}`)
             .then(resp =>  
                 setTabs([...tabs, {
                     type: 'component',
                     title: name,
+                    componentId: idGenerator(),
                     saved: false,
-                    item: item,
+                    item,
                     eventKey: 'editor',
-                    component: ( <CodeEditor {...props} language={language(name)} response={resp} value={ atob(resp.data.object.data) } /> )
+                    component: ( <CodeEditor {...props} item={item} language={language(name)} response={resp} value={ atob(resp.data.object.data) } /> )
                 }])  
             ) ; 
     
@@ -85,8 +210,24 @@ export default function ProjectContextProvider({ props, children }) {
         tabs,
         treeData,
         workdir,
+        displayProjectProperties,
+        projectSpinner,
+        containerInformation,
+        displayProjectCommandDialog,
+        displayProjectInspectorDialog,
+        setProjectSpinner,
+        setDisplayProjectInspectorDialog,
+        setDisplayProjectCommandDialog,
+        setDisplayProjectProperties,
         openProjectFile,
+        refreshProjectDirectory,
+        saveProjectFile,
+        removeProjectFile,
+        renameProjectFile,
         changeWorkingDirectory,
+        actionOnProjectEditor,
+        startProject,
+        removeTab,
         addNewTab : (tab) => setTabs([...tabs, tab])
     }
 
@@ -111,6 +252,7 @@ export default function ProjectContextProvider({ props, children }) {
                      data.push( {
                          type: 'file',
                          folder: workdir,
+                         componentId: idGenerator(),
                          id: e.name,
                          name: e.name
                      })
@@ -118,6 +260,7 @@ export default function ProjectContextProvider({ props, children }) {
                     data.push( {
                         type: 'folder',
                         folder: workdir,
+                        componentId: idGenerator(),
                         id: e.name,
                         name: e.name,
                         childrens: []
@@ -125,7 +268,7 @@ export default function ProjectContextProvider({ props, children }) {
                  }
             });
 
-            if ( treeData.length === 0 ) {
+            if ( treeData.length === 0 || (treeData.length !== 0 && workdir === '/') ) {
                 setTreeData( data )
             } else {
                 parent.childrens = data
