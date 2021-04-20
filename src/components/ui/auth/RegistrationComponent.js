@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import Input from '../input/FormInputElement';
 import { Button, Card, Col, Form, Row, Alert } from 'react-bootstrap';
 import UIErrorHandler from '../handler/ErrorHandler';
 import axios from '../../../HttpClient';
 import { checkValidity } from '../../../config/config';
 import { Redirect } from 'react-router-dom';
+import { DefaultFormInput } from '../input/FormInputElement';
  
 /**
  * Registration component is responsible for the registration.
  * 
  * @author Attila Barna
  */
-class Registration extends Component {
+class RegistrationComponent extends Component {
 
     state = {
         error: {
@@ -154,7 +154,7 @@ class Registration extends Component {
         const fma = Object.keys( this.state.controls ).map( k => ( { id : k, config: this.state.controls[k] } ) ) 
 
         let form = fma.map( fm => (
-            <Input
+            <DefaultFormInput
                 label={fm.config.label}
                 key={fm.id}
                 elementType={fm.config.elementType}
@@ -229,4 +229,4 @@ const dispatches = dispatch => {
     return {}
 }
 
-export default connect( states, dispatches )( UIErrorHandler( Registration, axios ) )
+export default connect( states, dispatches )( UIErrorHandler( RegistrationComponent, axios ) )
