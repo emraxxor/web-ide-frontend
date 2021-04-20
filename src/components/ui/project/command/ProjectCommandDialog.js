@@ -36,10 +36,8 @@ const ProjectCommandDialog = () => {
             }
         })
         .catch( err => console.error(err) )
-
     }
    
-
     return ( 
           <>
            <Row>

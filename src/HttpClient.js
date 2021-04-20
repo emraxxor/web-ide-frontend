@@ -8,5 +8,6 @@ const instance = axios.create({
     }
 });
 
+export const HttpRestClient = instance
 
 export default instance;

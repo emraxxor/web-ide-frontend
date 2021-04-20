@@ -1,8 +1,8 @@
 import Editor from "@monaco-editor/react";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Col, Row } from "react-bootstrap";
-import { ACTION } from "../../../config/config";
-import { ProjectContext } from "../../../context/ProjectContext";
+import { ACTION } from "../../../../config/config";
+import { ProjectContext } from "../../../../context/ProjectContext";
 import ProjectCreateNewFile from "./ProjectCreateNewFile";
 
 /**
@@ -22,12 +22,12 @@ const CodeEditor = ( props, children ) => {
     const [displayNewFileComponent, setDisplayNewFileComponent] = useState(false)
     const {item} = props
 
+
     async function handleEditorDidMount(editor, monaco) {
       editorRef.current = editor;
       monacoRef.current = monaco
       setMounted(true)
     }
-
 
     function handleFileDialogActionListener(action) {
             if ( action.type === ACTION.SAVE ) {
@@ -66,13 +66,14 @@ const CodeEditor = ( props, children ) => {
   
     } , [workdir,mounted] ); 
 
-  
+
     return (
         <>
         <ProjectCreateNewFile displayComponent={displayNewFileComponent} actionListener={handleFileDialogActionListener}></ProjectCreateNewFile>
         <Row>
             <Col>
                     <Editor
+                        key={item.componentId}
                         height="90vh"
                         theme="vs-dark"
                         defaultLanguage={props.language ?? 'javascript'}
@@ -84,8 +85,6 @@ const CodeEditor = ( props, children ) => {
         </>
     );
   
-    
 };
-
 
 export default CodeEditor;

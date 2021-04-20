@@ -5,7 +5,7 @@ import { FormControl, FormGroup, FormLabel } from 'react-bootstrap';
  * @author Attila Barna
  * @param {*} props 
  */
-const input = ( props ) => {
+export const DefaultFormInput = ( props ) => {
     let element = null
     let currclasses = props.classes ?? []
     let invalid = false
@@ -20,7 +20,7 @@ const input = ( props ) => {
                 type="text"
                 className={currclasses.join(' ')}
                 {...props.elementConfig}
-                value={props.value}
+                value={props.value ?? ''}
                 isInvalid={invalid}
                 onChange={props.changed} />;
             break;
@@ -29,7 +29,7 @@ const input = ( props ) => {
                     type="password"
                     className={currclasses.join(' ')}
                     {...props.elementConfig}
-                    value={props.value}
+                    value={props.value ?? ''}
                     isInvalid={invalid}
                     onChange={props.changed} />;
                 break;
@@ -39,7 +39,7 @@ const input = ( props ) => {
                 rows={props.rows ?? 3}
                 className={currclasses.join(' ')}
                 {...props.elementConfig}
-                value={props.value}
+                value={props.value ?? ''}
                 isInvalid={invalid}
                 onChange={props.changed} />;
             break;
@@ -47,9 +47,9 @@ const input = ( props ) => {
             element = 
                 <FormControl
                     as="select" 
-                    multiple
+                    multiple={props.multiple}
                     className={currclasses.join(' ')}
-                    value={props.value}
+                    value={props.value ?? ''}
                     isInvalid={invalid}
                     onChange={props.changed}
                 >
@@ -66,7 +66,7 @@ const input = ( props ) => {
                 className={currclasses.join(' ')}
                 error={invalid}
                 {...props.elementConfig}
-                value={props.value}
+                value={props.value ?? ''}
                 isInvalid={invalid}
                 onChange={props.changed} />;
     }
@@ -80,4 +80,3 @@ const input = ( props ) => {
 
 };
 
-export default input;

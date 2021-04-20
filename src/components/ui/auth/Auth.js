@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import * as actions from '../../../store/auth/actions';
-import Input from '../input/FormInputElement';
+import { DefaultFormInput } from '../input/FormInputElement';
 import { Button, Card, Col, Form, Row, Alert } from 'react-bootstrap';
 import UIErrorHandler from '../handler/ErrorHandler';
 import axios from '../../../HttpClient';
@@ -80,7 +80,7 @@ class Auth extends Component {
         const fma = Object.keys( this.state.controls ).map( k => ( { id : k, config: this.state.controls[k] } ) ) 
 
         let form = fma.map( fm => (
-            <Input
+            <DefaultFormInput
                 label={fm.config.label}
                 key={fm.id}
                 elementType={fm.config.elementType}

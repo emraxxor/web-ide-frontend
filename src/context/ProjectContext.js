@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import CodeEditor from "../components/ui/project/CodeEditor";
+import CodeEditor from "../components/ui/project/editor/CodeEditor";
 import { actionInitProject, actionReloadWorkingDirectory, actionRemoveProjectFile, actionUpdateWorkingDirectory } from "../store/project/actions";
 import {store} from "../store/store"
 import axios from '../HttpClient';
@@ -15,14 +15,19 @@ export const ProjectContext = createContext();
  */
 export default function ProjectContextProvider({ props, children }) {
     const {id} = useParams()
+    const project = useSelector(state => state.project)
     const files = useSelector( state => state.project.files )
     const workdir = useSelector(state => state.project.currentProject.workdir)
+    const currentProject = useSelector( state => state.project.currentProject )
+    const [browserData, setBrowserData] = useState(null)
     const [treeData, setTreeData] = useState([])
+    const [displayNewDirectoryDialog,setDisplayNewDirectoryDialog] = useState(false)
     const [displayProjectProperties,setDisplayProjectProperties] = useState(false)
     const [displayProjectCommandDialog,setDisplayProjectCommandDialog] = useState(false)
     const [displayProjectInspectorDialog,setDisplayProjectInspectorDialog] = useState(false)
     const [containerInformation,setContainerInformaton] = useState(null)
     const [projectSpinner, setProjectSpinner] = useState((<></>))
+    const [projectSettingsDialogWindow, setProjectSettingsDialogWindow] = useState(false)
 
     const [tabs, setTabs] = useState(
         [
@@ -69,7 +74,12 @@ export default function ProjectContextProvider({ props, children }) {
     }
 
     const changeWorkingDirectory = (item) => {
-        store.dispatch(actionUpdateWorkingDirectory(id, item.folder,item.name))
+        let name = item.name 
+
+        if ( item.folder !== '/' ) 
+            name = '/' + item.name
+
+        store.dispatch(actionUpdateWorkingDirectory(id, item.folder,name))
     }
 
     const refreshProjectDirectory = () => {
@@ -133,6 +143,35 @@ export default function ProjectContextProvider({ props, children }) {
         } 
     }    
 
+    const renameProjectDirectory = async (item,{action}) => {
+        if ( item && item.name ) {
+            let { folder, name } = item 
+
+            if ( folder == '/' ) 
+                folder = '';
+
+            const data = {
+                type : 'DIR',
+                name : action.data.file.name,
+                data : '',
+                parent: folder
+            }
+
+            return new Promise( (resolve,reject) => {
+                    axios
+                        .put(`/api/project-filemanager/${id}/rename/directory/${folder}/${name}`, data)
+                        .then(resp =>  {
+                            if ( resp.status === 202 ) {
+                                resolve( resp )
+                                store.dispatch(actionReloadWorkingDirectory(id, workdir))         
+                            }
+                        })
+                        .catch( err => reject(err) )
+            });
+
+        } 
+    }    
+
     const saveProjectFile = async (element, data) => {
         const { item } = element
 
@@ -163,6 +202,16 @@ export default function ProjectContextProvider({ props, children }) {
         } 
     }    
 
+
+    const openInBrowser = async() => {
+        try { 
+            const res = await axios.get(`/api/project/inspect/${id}`)
+            setBrowserData(res.data.object);
+        } catch(err) {
+            console.error(err)
+        }
+    }
+
     const startProject = async () => {
         return new Promise( (resolve,reject )  =>  {
                     axios
@@ -170,6 +219,7 @@ export default function ProjectContextProvider({ props, children }) {
                     .then(resp => { 
                             if ( resp.data.code === 1 ) {
                                 setContainerInformaton(resp.data.object)
+                                openInBrowser()
                                 resolve(resp.data.object)
                             }
                         
@@ -178,6 +228,28 @@ export default function ProjectContextProvider({ props, children }) {
         });
     }
 
+    const createProjectDirectory = (name) => {
+        let currdir = workdir
+ 
+        if ( currdir == '/' ) 
+            currdir = ''
+        
+
+        return new Promise( (resolve,reject )  =>  { 
+            axios
+            .put(`/api/project-filemanager/${id}/create/directory/${currdir}`,{
+                type: 'DIR',
+                name,
+                data: ''
+            })
+            .then(resp => { 
+                store.dispatch(actionReloadWorkingDirectory(id, workdir))
+                resolve(resp.data.object)                        
+            })
+            .catch(err => reject(err))
+        });
+    } 
+
     const openProjectFile = (item) => {
         let {folder, name} = item
         if ( folder == '/' ) 
@@ -185,7 +257,7 @@ export default function ProjectContextProvider({ props, children }) {
 
         if ( !item.saved ) 
             item.saved = false
-        
+       
         if ( tabs.find(e => e.item && e.item.componentId && e.item.componentId === item.componentId ) )
             return 
 
@@ -205,6 +277,63 @@ export default function ProjectContextProvider({ props, children }) {
     
     }
 
+    const removeProjectDirectory = (item) => {
+        let currdir = null
+ 
+        if ( item.type == 'folder' && item.folder.name !== '' ) {
+            currdir = item.folder + '/' + item.name
+        }
+
+        if ( currdir !== null ) {
+            return new Promise( (resolve,reject )  =>  { 
+                axios
+                .delete(`/api/project-filemanager/${id}/remove/directory${currdir}`)
+                .then(resp => { 
+                    store.dispatch(actionReloadWorkingDirectory(id, workdir))
+                    resolve(resp.data.object)                        
+                })
+                .catch(err => reject(err))
+            });
+        } 
+
+        return null
+    }
+
+    const refreshDirectory = () => {
+        if ( workdir && files ) {
+            const dirs = Array.from(workdir.split("/")).filter( e => e !== "");
+            const { tree, parent } = findDirectory(treeData, dirs, 0);
+            const data = [];
+            Array.from(files).forEach( e => {
+                    if ( e.type === 'FILE' ) {
+                        data.push( {
+                            type: 'file',
+                            folder: workdir,
+                            componentId: idGenerator(),
+                            id: e.name,
+                            name: e.name
+                        })
+                    } else if ( e.type === 'DIR' ) {
+                        data.push( {
+                            type: 'folder',
+                            folder: workdir,
+                            componentId: idGenerator(),
+                            id: e.name,
+                            name: e.name,
+                            childrens: []
+                        })
+                    }
+            });
+    
+            if ( treeData.length === 0 || (treeData.length !== 0 && workdir === '/') ) {
+                setTreeData( data )
+            } else {
+                parent.childrens = data
+                setTreeData(treeData)
+            }
+        }
+    }
+
     const ctx = {
         projectId : id,
         tabs,
@@ -215,6 +344,15 @@ export default function ProjectContextProvider({ props, children }) {
         containerInformation,
         displayProjectCommandDialog,
         displayProjectInspectorDialog,
+        projectSettingsDialogWindow,
+        browserData,
+        currentProject,
+        project,
+        displayNewDirectoryDialog,
+        setDisplayNewDirectoryDialog,
+        refreshDirectory,
+        setBrowserData,
+        setProjectSettingsDialogWindow,
         setProjectSpinner,
         setDisplayProjectInspectorDialog,
         setDisplayProjectCommandDialog,
@@ -228,6 +366,10 @@ export default function ProjectContextProvider({ props, children }) {
         actionOnProjectEditor,
         startProject,
         removeTab,
+        openInBrowser,
+        createProjectDirectory,
+        removeProjectDirectory,
+        renameProjectDirectory,
         addNewTab : (tab) => setTabs([...tabs, tab])
     }
 
@@ -242,45 +384,10 @@ export default function ProjectContextProvider({ props, children }) {
     }
 
 
-    useEffect( () => {
-        if ( workdir && files ) {
-            const dirs = Array.from(workdir.split("/")).filter( e => e !== "");
-            const { tree, parent } = findDirectory(treeData, dirs, 0);
-            const data = [];
-            Array.from(files).forEach( e => {
-                 if ( e.type === 'FILE' ) {
-                     data.push( {
-                         type: 'file',
-                         folder: workdir,
-                         componentId: idGenerator(),
-                         id: e.name,
-                         name: e.name
-                     })
-                 } else if ( e.type === 'DIR' ) {
-                    data.push( {
-                        type: 'folder',
-                        folder: workdir,
-                        componentId: idGenerator(),
-                        id: e.name,
-                        name: e.name,
-                        childrens: []
-                    })
-                 }
-            });
-
-            if ( treeData.length === 0 || (treeData.length !== 0 && workdir === '/') ) {
-                setTreeData( data )
-            } else {
-                parent.childrens = data
-                setTreeData(treeData)
-            }
-            
-        }
-    }, [files] )
-
+    useEffect( () => refreshDirectory() , [files,workdir] )
 
     useEffect(() => {
-        store.dispatch(actionInitProject(id))
+        store.dispatch(actionInitProject(id));
     }, [id])
 
     return (

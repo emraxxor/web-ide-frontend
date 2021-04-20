@@ -17,7 +17,7 @@ const useContextMenu = (outerRef) => {
 
       if (outerRef.current && outerRef.current.contains(event.target)) {
         outerRef.current.classList.add('selected-item')
-        setLeftPos(`${event.x - 230}px`);
+        setLeftPos(`${event.x - 30}px`);
         setTopPos(`${event.y - 180}px`);
         setMenu(true);
       } else {

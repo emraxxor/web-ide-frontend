@@ -2,10 +2,20 @@ import axios from '../../HttpClient';
 
 export const SET_PROJECTS = 'SET_PROJECTS';
 export const SET_PROJECT = 'SET_PROJECT';
+export const SET_PROJECTS_STATE = 'SET_PROJECTS_STATE';
 export const SET_PROJECT_FILES = 'SET_PROJECT_FILES';
 export const SET_WORKING_DIRECTORY = 'SET_WORKING_DIRECTORY';
 export const SET_PROJECT_TREE = 'SET_PROJECT_TREE';
+export const ACTION_RESET_PROJECT = 'ACTION_RESET_PROJECT';
+export const ACTION_RENEW_PROJECT = 'ACTION_RENEW_PROJECT';
 
+
+export const setProjectsState = ( state ) => {
+    return {
+        type: SET_PROJECTS_STATE,
+        state
+    };
+}
 
 export const setProjects = ( projects ) => {
     return {
@@ -47,10 +57,26 @@ export const setProjectFiles = ( files ) => {
     };
 }
 
+export const actionResetProject = ( ) => {
+    return {
+        type: ACTION_RESET_PROJECT,
+    };
+}
+
+export const actionRenewProject = ( projectId ) => async dispatch => {
+    dispatch(actionResetProject())
+    dispatch(actionInitProject(projectId))
+}
+
+
 export const actionReloadWorkingDirectory = (projectId, folder) => async dispatch => {
     axios
         .get(`/api/project-filemanager/${projectId}?dir=${folder}`)
-        .then(resp =>  dispatch( setProjectFiles(resp.data.object) ) ) ; 
+        .then(resp =>  {
+             if ( resp && resp.data && resp.data.object ) {
+                dispatch( setProjectFiles(resp.data.object) ) 
+             }
+        } )  ; 
 }
 
 export const actionUpdateWorkingDirectory = ( projectId, folder, name ) => async dispatch => {
@@ -58,7 +84,12 @@ export const actionUpdateWorkingDirectory = ( projectId, folder, name ) => async
 
     axios
         .get(`/api/project-filemanager/${projectId}?dir=${folder}${name}`)
-        .then(resp =>  dispatch( setProjectFiles(resp.data.object) ) ) ; 
+        .then(resp => {
+             if ( resp && resp.data && resp.data.object ) { 
+                dispatch( setProjectFiles(resp.data.object) )
+             }
+        } )
+        .catch(err => console.error(err))
 } 
 
 export const actionRemoveProjectFile = ( projectId, folder, name ) => async dispatch => {
@@ -80,17 +111,26 @@ export const actionUpdateProjectTree = ( tree ) => async dispatch => {
 
 export const actionInitProject = (projectId) => async dispatch =>   {
 
-    axios.get(`/api/project/${projectId}`)
-    .then(resp => dispatch(setProject(resp.data.object)));
+    axios
+        .get(`/api/project/${projectId}`)
+        .then(resp => dispatch(setProject(resp.data.object)))
+        .catch(err => console.error(err));
 
-    axios.get(`/api/project-filemanager/${projectId}`)
-    .then(resp => dispatch( setProjectFiles(resp.data.object) ));
+    axios
+        .get(`/api/project-filemanager/${projectId}`)
+        .then(resp => dispatch( setProjectFiles(resp.data.object) ))
+        .catch(err => console.error(err));
 }
 
 export const initProject = () => async dispatch => {
-    axios.get( `/api/project` )
+    dispatch(setProjectsState('FETCH'))
+    axios.get( `/api/project/simple` )
     .then( resp => {
-        dispatch(setProjects(resp.data.object));
+        dispatch(setProjects(resp.data.object))
+        dispatch(setProjectsState('DONE'))
     })
+    .catch( err => dispatch(setProjectsState('DONE')) )
 
 }
+
+
