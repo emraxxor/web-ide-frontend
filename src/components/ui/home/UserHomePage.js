@@ -6,6 +6,7 @@ import axios from '../../../HttpClient';
 import UIErrorHandler from '../handler/ErrorHandler';
 import JSONPretty from 'react-json-prettify';
 import { Link, NavLink } from 'react-router-dom';
+import Spinner from '../spinner/Spinner';
 
 const ProjectItem = styled.div`
   cursor: pointer;
@@ -20,10 +21,11 @@ class UserHomePage extends Component {
 
     state = {
         showProjectModal: false,
+        state: 'INIT',
         project : {
             name: '',
-
-        }
+        },
+        spinner  : (null)
     }
 
     constructor(props) {
@@ -32,10 +34,16 @@ class UserHomePage extends Component {
     }
 
     componentDidMount() {
+         this.setSpinner((<Spinner></Spinner>))
     }
 
 
     componentDidUpdate() {
+        if ( this.props.state === 'DONE' && this.state.state !== 'DONE' )  {
+            this.setSpinner((null))
+            this.setState({state:'DONE'})
+        }
+        
     }
 
     onShowProject(project) {
@@ -44,6 +52,10 @@ class UserHomePage extends Component {
             showProjectModal: true,
             project
         });
+    }
+
+    setSpinner(spinner) {
+        this.setState({spinner})
     }
 
     handleCloseModalWindow() {
@@ -55,8 +67,10 @@ class UserHomePage extends Component {
         if ( !this.props.isAuthenticated )
             return (<></>)
 
+      
         return (
             <>
+            {this.state.spinner}
             <Modal size="xl" show={this.state.showProjectModal} onHide={this.handleCloseModalWindow}>
                 <Modal.Header closeButton>
                 <Modal.Title>{this.state.project.name}</Modal.Title>
@@ -84,9 +98,6 @@ class UserHomePage extends Component {
 
                                
                             </Card.Body>
-                            <Card.Footer>
-                                <Button>New project</Button>
-                            </Card.Footer>
                         </Card>
                 </Col>
                 <Col md="6">
@@ -119,6 +130,7 @@ class UserHomePage extends Component {
 const states = state => {
     return {
         projects: state.project.projects,
+        state: state.project.state
     };
 };
 

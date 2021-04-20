@@ -24,11 +24,11 @@ const TabbedPane = ({ props, data }) => {
             onSelect={(k) => setKey(k)}
         >
             {data.map( (item,ix) => {
-                
-                const cloned =  cloneElement(
+                 
+                let cloned =  cloneElement(
                     item.component,
                     {item: item}
-                )            
+                )          
 
                 if (item.type === 'component') {
                   return (  

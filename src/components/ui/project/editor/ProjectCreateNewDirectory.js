@@ -1,28 +1,37 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { Button, Col, Form, Modal, Row } from 'react-bootstrap';
-import { ACTION } from "../../../config/config";
+import { ACTION } from "../../../../config/config";
+import { ProjectContext } from "../../../../context/ProjectContext";
+import Spinner from "../../spinner/Spinner";
 
 
 /**
  * 
  * @author Attila Barna 
  */
-const ProjectCreateNewFile = ( { displayComponent , actionListener }) => {
+const ProjectCreateNewDirectory = () => {
     const fileName = useRef()
+    const projectContext = useContext(ProjectContext)
 
     function handleModalSaveEvent(e) {
         const name = fileName.current.value 
-        actionListener({type: ACTION.SAVE, data: { file : { name }}})
+        projectContext.setProjectSpinner( (<Spinner></Spinner>) )
+        projectContext.createProjectDirectory(name)
+        .then( e => {
+            projectContext.setProjectSpinner(null)
+            projectContext.setDisplayNewDirectoryDialog(false)
+        })
+        .catch(err => projectContext.setProjectSpinner(null))
     }
 
     function handleModalCloseEvent(e) {
-        actionListener({type: ACTION.CANCEL})
+        projectContext.setDisplayNewDirectoryDialog(false)
     }
 
     return ( 
            <Row>
                 <Col>
-                    <Modal show={displayComponent} size="lg" animation={true}> 
+                    <Modal show={projectContext.displayNewDirectoryDialog} size="lg" animation={true}> 
                         <Modal.Header closeButton>
                             <Modal.Title>New file</Modal.Title>
                         </Modal.Header>
@@ -30,8 +39,8 @@ const ProjectCreateNewFile = ( { displayComponent , actionListener }) => {
                         <Modal.Body>
                                 
                                 <Form.Group>
-                                        <Form.Label>File name</Form.Label>
-                                        <Form.Control ref={fileName} type="text" placeholder="File name" />
+                                        <Form.Label>Directory name:</Form.Label>
+                                        <Form.Control ref={fileName} type="text" placeholder="Directory name" />
                                 </Form.Group>
 
 
@@ -49,4 +58,4 @@ const ProjectCreateNewFile = ( { displayComponent , actionListener }) => {
 };
 
 
-export default ProjectCreateNewFile;
+export default ProjectCreateNewDirectory;

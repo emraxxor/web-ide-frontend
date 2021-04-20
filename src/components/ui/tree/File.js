@@ -4,7 +4,7 @@ import './File.scss';
 import { useContext, useRef, useState } from 'react';
 import { ProjectContext } from '../../../context/ProjectContext';
 import TreeContextMenu from '../context-menu/TreeContextMenu';
-import ProjectRenameFile from '../project/ProjectRenameFile';
+import ProjectRenameFile from '../project/editor/ProjectRenameFile';
 import { ACTION } from '../../../config/config';
 
 /**
@@ -31,8 +31,6 @@ const File = ({ name, item }) => {
     }
     setDisplayDialog(false)
   }
-
-
 
   const handleItemClick = (item) => {
       if ( item.action === 'delete' ) {
@@ -62,11 +60,11 @@ const File = ({ name, item }) => {
   return (
     <>
     <ProjectRenameFile displayComponent={displayDialog} item={item} actionListener={handleFileDialogActionListener} ></ProjectRenameFile>
-    <div ref={contextMenuRef} onClick={handleClick} className="file">
+    <div onClick={handleClick} className="file">
       {FILE_ICONS[ext] || <AiOutlineFile />}
-      <span>{name}</span>
+      <span ref={contextMenuRef}>{name}</span>
+      <TreeContextMenu onItemClick={handleItemClick} contextMenuRef={contextMenuRef} items={items} ></TreeContextMenu>
     </div>
-    <TreeContextMenu onItemClick={handleItemClick} contextMenuRef={contextMenuRef} items={items} ></TreeContextMenu>
     </>
   );
 };

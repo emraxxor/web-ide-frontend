@@ -112,8 +112,12 @@ export const authCheckState = () => {
             if (expirationDate <= new Date()) {
                 dispatch(logout())
             } else {
-                const { userId, neptunId, token  } = localStorage
-                dispatch(authSuccess(token, userId, neptunId))
+                const data = {
+                    userId: localStorage.getItem('userId'),
+                    neptunId: localStorage.getItem('neptunId'),
+                    token: localStorage.getItem('token')
+                }
+                dispatch(authSuccess(data))
                 dispatch(currentUserInfo())
             }   
         }

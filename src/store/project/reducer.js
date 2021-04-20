@@ -9,28 +9,31 @@ const initialState = {
         project: {},
         projectTree : []
     },
-
+    state : 'INIT',
     projects: [],
 };
 
 const setProject = (state,action) => {
     const currentProject = state.currentProject
     currentProject.project = action.project 
-    currentProject.workdir = action.dir
+    currentProject.workdir = action.dir.replaceAll("//","/")
     return update( state, {  currentProject })
 };
 
 const setWorkingDirectory = (state,action) => {
     const currentProject = state.currentProject
-    currentProject.workdir = action.dir
+    currentProject.workdir = action.dir.replaceAll("//","/")
     return update( state, {  currentProject })
 };
 
 const setProjectTree = (state,action) => {
     const currentProject = state.currentProject
     currentProject.projectTree = action.tree
-    console.log(currentProject)
     return update( state, { currentProject })
+};
+
+const setProjectsState = (state,action) => {
+    return update( state, { state: action.state })
 };
 
 
@@ -44,6 +47,15 @@ const setProjects = ( state, action ) => {
     return update( state, { projects: action.projects } )
 };
 
+const actionResetProject = (state, action) => {
+    return {...state, currentProject: {
+        files: {},
+        workdir: '',
+        project: {},
+        projectTree : []
+    }}
+}
+
 const reducer = ( state = initialState, action ) => {
     switch ( action.type ) {
         case actionTypes.SET_PROJECTS: return setProjects(state, action)
@@ -51,6 +63,10 @@ const reducer = ( state = initialState, action ) => {
         case actionTypes.SET_PROJECT_FILES: return setProjectFiles(state, action)
         case actionTypes.SET_WORKING_DIRECTORY: return setWorkingDirectory(state, action)
         case actionTypes.SET_PROJECT_TREE: return setProjectTree(state, action)
+        case actionTypes.SET_PROJECTS_STATE: return setProjectsState(state, action)
+        case actionTypes.ACTION_RESET_PROJECT: return actionResetProject(state, action)
+
+
         default: return state;
     }
 };

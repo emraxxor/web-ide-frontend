@@ -1,11 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { Button, Col, Form, Modal, Row } from 'react-bootstrap';
 import { ProjectContext } from "../../../../context/ProjectContext";
-import JSONPretty from 'react-json-prettify';
-import axios from '../../../../HttpClient';
-import Spinner from "../../spinner/Spinner";
 import { ProjectDialogContext } from "../../../../context/ProjectDialogContext";
-
 
 /**
  * 
@@ -18,7 +14,6 @@ const ProjectDialogWindow = () => {
     function handleModalCloseEvent(e) {
         ctx.setDisplay(false)
     }
-
 
     return ( 
           <>
