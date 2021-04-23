@@ -55,7 +55,7 @@ const Browser = React.forwardRef(( props, ref ) => {
     }, [defaultUrl] )
 
     if ( !browserData || !defaultUrl ) 
-      return (null)
+      return null
     
 
     return (
@@ -73,7 +73,6 @@ const Browser = React.forwardRef(( props, ref ) => {
           src={defaultUrl}
           width="100%"
           allow="*"
-          frameBorder="0"
           frameBorder="0"
           marginHeight="0"
           marginWidth="0"

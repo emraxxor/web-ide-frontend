@@ -8,7 +8,7 @@ import './ProjectNavbar.css'
 import axios from '../../../../../HttpClient';
 import { useSelector } from "react-redux";
 import {store} from "../../../../../store/store"
-import { actionInitProject, actionRenewProject } from "../../../../../store/project/actions";
+import { actionRenewProject } from "../../../../../store/project/actions";
 
 /**
  * 
@@ -24,7 +24,7 @@ const ProjectNavbar = ( {  }) => {
     const browserData = ptx.browserData
 
     const onClickProjectProperties = (e) => {
-        ptx.setProjectSpinner( (<Spinner></Spinner>) )
+        ptx.setProjectSpinner( (<Spinner/>) )
         axios   
         .get(`/api/project/container/${ptx.projectId}`)
         .then(resp =>  {
@@ -45,7 +45,7 @@ const ProjectNavbar = ( {  }) => {
     }
 
     const onClickProjectLog = (e) => {
-        ptx.setProjectSpinner( (<Spinner></Spinner>) )
+        ptx.setProjectSpinner( (<Spinner/>) )
         axios   
         .get(`/api/project/log/${ptx.projectId}`)
         .then(resp =>  {
@@ -67,7 +67,7 @@ const ProjectNavbar = ( {  }) => {
     }
 
     const onClickProjectInspector = (e) => {
-        ptx.setProjectSpinner( (<Spinner></Spinner>) )
+        ptx.setProjectSpinner( (<Spinner/>) )
         axios   
         .get(`/api/project/inspect/${ptx.projectId}`)
         .then(resp =>  {
@@ -85,12 +85,12 @@ const ProjectNavbar = ( {  }) => {
     }
 
     const onClickProjectStart = (e) => {
-        ptx.setProjectSpinner( (<Spinner></Spinner>) )
+        ptx.setProjectSpinner( (<Spinner/>) )
         ptx.startProject().then(e => ptx.setProjectSpinner(<></>) )
     }
 
     const onClickProjectRestart = e => {
-        ptx.setProjectSpinner( (<Spinner></Spinner>) )
+        ptx.setProjectSpinner( (<Spinner/>) )
         axios   
         .get(`/api/project/restart/${ptx.projectId}`)
         .then(resp =>  {
@@ -102,7 +102,7 @@ const ProjectNavbar = ( {  }) => {
     }
 
     const onClickProjectStop = e => {
-        ptx.setProjectSpinner( (<Spinner></Spinner>) )
+        ptx.setProjectSpinner( (<Spinner/>) )
         axios   
         .get(`/api/project/stop/${ptx.projectId}`)
         .then(resp =>  {
@@ -117,20 +117,22 @@ const ProjectNavbar = ( {  }) => {
         store.dispatch(actionRenewProject(ptx.projectId));
     }
 
+    const inspect = () => {
+        ptx.setProjectSpinner( (<Spinner/>) )
+        axios
+            .get(`/api/project/inspect/${ptx.projectId}`)
+            .then(resp =>  {
+                if ( resp.status === 200  && resp.data.code === 1 ) {
+                        ptx.setProjectSpinner( (<></>) )
+                        setProjectInspectedData(resp.data.object)
+                }
+        })
+    }
+
     const openProjectInBrowser = (e) => {
         if ( currentProject && currentProject.project && currentProject.project.containerElement ) {
             ptx.setBrowserData(null)
-            ptx.setProjectSpinner( (<Spinner></Spinner>) )
-            axios   
-            .get(`/api/project/inspect/${ptx.projectId}`)
-            .then(resp =>  {
-                if ( resp.status === 200 ) {
-                    if ( resp.data.code === 1 ) {
-                        ptx.setProjectSpinner( (<></>) )
-                        setProjectInspectedData(resp.data.object)
-                    }
-                }
-            })        
+            inspect()
         }
     }
 
@@ -141,21 +143,9 @@ const ProjectNavbar = ( {  }) => {
     useEffect( () => {
         if ( currentProject && currentProject.project && currentProject.project.containerElement ) {
             if ( !navbarInit ) {
-                ptx.setProjectSpinner( (<Spinner></Spinner>) )
-                axios   
-                .get(`/api/project/inspect/${ptx.projectId}`)
-                .then(resp =>  {
-                    if ( resp.status === 200 ) {
-                        if ( resp.data.code === 1 ) {
-                            ptx.setProjectSpinner( (<></>) )
-                            setProjectInspectedData(resp.data.object)
-                        }
-                    }
-                })        
-
+                inspect()
                 setNavbarInit(true)
             }
-
         }
 
         if ( currentProject && currentProject.project  ) {

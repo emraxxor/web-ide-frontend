@@ -1,13 +1,13 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useState } from "react";
 
 
-export const ProjectDialogContext = createContext();
+export const ProjectDialogContext = createContext({});
 
 /**
  * 
  * @author Attila Barna
  */
-export default function ProjectDialogContextProvider({ props, children }) {
+export default function ProjectDialogContextProvider({children }) {
     const [display,setDisplay] = useState(false)
     const [content,setContent] = useState(<></>)
     const [title,setTitle] = useState('')

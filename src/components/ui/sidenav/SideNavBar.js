@@ -1,7 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import SideNav, {
-  Toggle,
-  Nav,
   NavItem,
   NavIcon,
   NavText
@@ -13,7 +11,7 @@ import { faHome, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import { useHistory } from "react-router-dom";
 
 
-const SideNavBar = ( props, children ) => {
+const SideNavBar = () => {
 
     const auth = useSelector( (state) => state.auth );
     const history = useHistory();

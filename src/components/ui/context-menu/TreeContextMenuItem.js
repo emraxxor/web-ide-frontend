@@ -1,6 +1,4 @@
 import styled from "styled-components";
-import useContextMenu from "./ContextMenu";
-import classes from './TreeContextMenuItem.css';
 
 
 const MenuItem = styled.div`

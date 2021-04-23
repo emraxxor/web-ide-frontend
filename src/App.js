@@ -2,11 +2,9 @@ import { Component } from 'react';
 import { Container } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { Redirect, Route, Switch, withRouter } from 'react-router-dom';
-import './App.css';
 import AsyncComponent from './components/async/AsyncComponent';
 import Auth from './components/ui/auth/Auth';
 import RegistrationComponent from './components/ui/auth/RegistrationComponent';
-import Home from './components/ui/home/Home';
 import Logout from './components/ui/logout/Logout';
 import NavBar from './components/ui/nav/NavBar';
 import ProjectBrowser from './components/ui/project/list/ProjectBrowser';
@@ -14,6 +12,9 @@ import SideNavBar from './components/ui/sidenav/SideNavBar';
 import ProjectContextProvider from './context/ProjectContext';
 import * as actions from './store/auth/actions';
 import ProfileComponent from './components/ui/profile/ProfileComponent';
+import AdminProjectBrowser from './components/ui/admin/project/AdminProjectBrowser';
+import './App.css';
+import UserHomePage from './components/ui/home/UserHomePage';
 
 const AsyncProjectEditor = AsyncComponent(() => {
   return import('./components/ui/project/editor/ProjectEditor');
@@ -30,13 +31,13 @@ class App extends Component {
   }
 
   render () {
-    let routes = null;
+    let routes;
 
     routes = (
           <Switch>
             <Route path="/auth" exact component={Auth} />
             <Route path="/registration" exact component={RegistrationComponent} />
-            <Route path="/" exact component={Home} />
+            <Route path="/" exact component={Auth} />
             { this.props.user !== null  ? <Redirect to="/" />  : null }
           </Switch>
     );
@@ -45,15 +46,15 @@ class App extends Component {
       routes = (
             <Switch>
               <Route path="/logout" exact component={Logout} />
+              <Route path="/admin" exact component={AdminProjectBrowser} />
               <Route path="/profile" exact component={ProfileComponent} />
               <Route path="/projects" exact component={ProjectBrowser} />
-              <Route path="/home" exact component={Home} />
               <Route path="/project/:id">
                   <ProjectContextProvider>
                     <AsyncProjectEditor/>
                   </ProjectContextProvider>
               </Route>
-              <Route path="/" exact component={Home} />
+              <Route path="/" exact component={UserHomePage} />
               <Redirect to="/" />
             </Switch>
       );

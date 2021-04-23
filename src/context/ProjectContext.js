@@ -7,7 +7,7 @@ import {store} from "../store/store"
 import axios from '../HttpClient';
 import idGenerator from "react-id-generator";
 
-export const ProjectContext = createContext();
+export const ProjectContext = createContext({});
 
 /**
  * 
@@ -48,7 +48,7 @@ export default function ProjectContextProvider({ props, children }) {
 
     const language = (filename) => {
         let ext = filename.split('.')[1];
-        if ( ext === 'html' || ext == 'html' ) {
+        if ( ext === 'html' || ext === 'html' ) {
             return 'html'
         } else if ( ext === 'js' ) {
             return 'javascript'
@@ -110,7 +110,7 @@ export default function ProjectContextProvider({ props, children }) {
     const renameProjectFile = async (item,{action}) => {
         if ( item && item.name ) {
             let { folder, name } = item 
-            if ( folder == '/' ) 
+            if ( folder === '/' )
                 folder = '';
 
             const data = {
@@ -147,7 +147,7 @@ export default function ProjectContextProvider({ props, children }) {
         if ( item && item.name ) {
             let { folder, name } = item 
 
-            if ( folder == '/' ) 
+            if ( folder === '/' )
                 folder = '';
 
             const data = {
@@ -177,7 +177,7 @@ export default function ProjectContextProvider({ props, children }) {
 
         if ( item && item.name ) {
             let { folder, name } = item 
-            if ( folder == '/' ) 
+            if ( folder === '/' )
                 folder = '';
 
             return new Promise( (resolve,reject) => {
@@ -231,7 +231,7 @@ export default function ProjectContextProvider({ props, children }) {
     const createProjectDirectory = (name) => {
         let currdir = workdir
  
-        if ( currdir == '/' ) 
+        if ( currdir === '/' )
             currdir = ''
         
 
@@ -252,7 +252,7 @@ export default function ProjectContextProvider({ props, children }) {
 
     const openProjectFile = (item) => {
         let {folder, name} = item
-        if ( folder == '/' ) 
+        if ( folder === '/' )
             folder = '';
 
         if ( !item.saved ) 
@@ -280,7 +280,7 @@ export default function ProjectContextProvider({ props, children }) {
     const removeProjectDirectory = (item) => {
         let currdir = null
  
-        if ( item.type == 'folder' && item.folder.name !== '' ) {
+        if ( item.type === 'folder' && item.folder.name !== '' ) {
             currdir = item.folder + '/' + item.name
         }
 

@@ -1,9 +1,9 @@
-import { useContext,  useEffect,  useState } from "react";
+import { useState } from "react";
 import { Button, Col, Modal, Row } from 'react-bootstrap';
 import axios from '../../../../../HttpClient';
 import Spinner from "../../../spinner/Spinner";
-import { DefaultFormInput } from "../../../input/FormInputElement";
-import { checkValidity, DockerContainerImageOptions } from "../../../../../config/config";
+import {DefaultFormDataGenerator, DefaultFormInput, DefaultInputChangeHandler} from "../../../input/FormInputElement";
+import { DockerContainerImageOptions } from "../../../../../config/config";
 
 
 /**
@@ -79,7 +79,7 @@ const NewProjectDialogWindow = ({ displayComponent , actionListener }) => {
         const data = Object.keys(controls).flatMap(e => controls[e]).map( (e,k) => ( { [e.name]: e['value'] } ) )
         .reduce((acc,curr)=>  (  {...acc,...curr} )   ,{})
 
-        setSpinner( (<Spinner></Spinner>)  )
+        setSpinner( (<Spinner/>)  )
 
         axios  
         .post(`/api/project`,{
@@ -115,23 +115,8 @@ const NewProjectDialogWindow = ({ displayComponent , actionListener }) => {
 
     }
 
-
-    const inputChangedHandler = ( event, controlName ) => {
-        const changed = {
-            ...controls,
-            [controlName]: {
-                ...controls[controlName],
-                value: event.target.value,
-                valid: checkValidity( event.target.value, controls[controlName].validation ),
-                touched: true
-            }
-        }
-        
-        setControls( changed );
-    }
-    
-
-    const formData = Object.keys( controls ).map( k => ( { id : k, config: controls[k] } ) )
+    const inputChangedHandler = ( event, controlName ) => DefaultInputChangeHandler(event,controlName, setControls , controls);
+    const formData = DefaultFormDataGenerator(controls);
    
     return ( 
           <>

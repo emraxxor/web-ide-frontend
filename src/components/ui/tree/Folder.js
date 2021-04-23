@@ -1,6 +1,6 @@
 import './Folder.scss';
 
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import { AiOutlineFolder } from 'react-icons/ai';
 import styled from 'styled-components';
 
@@ -48,7 +48,7 @@ const Folder = ({ name, children, item }) => {
     }
 
     const removeSelectedItem = () => {
-       ctx.removeProjectDirectory(item)
+       ctx.removeProjectDirectory(item).then(r => console.debug(r))
     } 
 
     const handleItemClick = (item) => {
@@ -73,12 +73,12 @@ const Folder = ({ name, children, item }) => {
 
     return (
       <>
-      <ProjectRenameDirectory displayComponent={displayDialog} item={item} actionListener={handleDialogActionListener} ></ProjectRenameDirectory>
+      <ProjectRenameDirectory displayComponent={displayDialog} item={item} actionListener={handleDialogActionListener} />
       <div key={`folder-` + item.componentId} className="folder">
         <div ref={folderLabel} className="folder--label" onClick={handleToggle}>
           <AiOutlineFolder />
           <span ref={contextMenuRef}>{name}</span>
-          <TreeContextMenu key={`tree-context-folder-` + item.componentId} onItemClick={handleItemClick} contextMenuRef={contextMenuRef} items={items} ></TreeContextMenu>
+          <TreeContextMenu key={`tree-context-folder-` + item.componentId} onItemClick={handleItemClick} contextMenuRef={contextMenuRef} items={items} />
         </div>
         <Collapsible isOpen={isOpen}>{children}</Collapsible>
       </div>

@@ -1,6 +1,5 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useRef} from "react";
 import { Button, Col, Form, Modal, Row } from 'react-bootstrap';
-import { ACTION } from "../../../../config/config";
 import { ProjectContext } from "../../../../context/ProjectContext";
 import Spinner from "../../spinner/Spinner";
 
@@ -15,7 +14,7 @@ const ProjectCreateNewDirectory = () => {
 
     function handleModalSaveEvent(e) {
         const name = fileName.current.value 
-        projectContext.setProjectSpinner( (<Spinner></Spinner>) )
+        projectContext.setProjectSpinner( (<Spinner/>) )
         projectContext.createProjectDirectory(name)
         .then( e => {
             projectContext.setProjectSpinner(null)

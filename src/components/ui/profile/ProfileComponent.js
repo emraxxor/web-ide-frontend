@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Button, Card, Col, Form, Row, Alert } from 'react-bootstrap';
+import { Button, Card, Col, Row, Alert } from 'react-bootstrap';
 import UIErrorHandler from '../handler/ErrorHandler';
 import axios from '../../../HttpClient';
 import { checkValidity } from '../../../config/config';
@@ -21,7 +21,7 @@ class ProfileComponent extends Component {
         userData : null,
         userDataState: 'INIT',
         state : 'INIT',
-        spinner  : (null),
+        spinner  : null,
         success: null,
         password: {
             userMail: {
@@ -189,12 +189,12 @@ class ProfileComponent extends Component {
    }
 
 
-   componentDidUpdate() {
+   componentDidUpdate(prevProps, prevState, snapshot) {
        if ( this.state.state === 'DONE' && this.state.state !== 'END')  {
-           this.setSpinner((null))
+           this.setSpinner(null)
            this.setState({state:'END'})
        } else if ( this.state.state === 'FETCH' ) {
-           this.setSpinner((<Spinner></Spinner>))
+           this.setSpinner((<Spinner/>))
            this.setState({state:'LOADING'});
        }
 
@@ -256,7 +256,7 @@ class ProfileComponent extends Component {
     }
 
     handleForm = ( controls , api ) => {
-        this.setSpinner((<Spinner></Spinner>))
+        this.setSpinner((<Spinner/>))
         this.setState({success:false})
 
         const data = Object.keys(controls)
@@ -385,8 +385,4 @@ const states = state => {
     }
 }
 
-const dispatches = dispatch => {
-    return {}
-}
-
-export default connect( states, dispatches )( UIErrorHandler( ProfileComponent , axios ) )
+export default connect( states )( UIErrorHandler( ProfileComponent , axios ) )

@@ -1,15 +1,13 @@
-import { Form, FormControl, Nav, Navbar, NavDropdown, Button } from "react-bootstrap";
+import { Nav, Navbar} from "react-bootstrap";
 import { useSelector } from "react-redux";
 
 
 /**
- * 
- * @param {*} props 
- * @param {*} children 
- * 
+ *
+ *
  * @author Attila Barna
  */
-const NavBar = ( props, children ) => {
+const NavBar = () => {
 
     const auth = useSelector( (state) => state.auth );
     let login = null

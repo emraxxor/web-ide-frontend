@@ -4,7 +4,7 @@ import { ProjectContext } from "../../../../context/ProjectContext";
 
 import axios from '../../../../HttpClient';
 import Spinner from "../../spinner/Spinner";
-import { DefaultFormInput } from "../../input/FormInputElement";
+import {DefaultFormDataGenerator, DefaultFormInput, DefaultInputChangeHandler} from "../../input/FormInputElement";
 import { checkValidity } from "../../../../config/config";
 import { useSelector } from "react-redux";
 
@@ -46,7 +46,7 @@ const ProjectSettingsDialogWindow = ({ displayComponent , actionListener }) => {
                         .map( (e,k) => ( { [e.name]: e['value'] } ) )
                         .reduce((acc,curr)=>  (  {...acc,...curr} )   ,{})
 
-        ctx.setProjectSpinner( (<Spinner></Spinner>) )
+        ctx.setProjectSpinner( (<Spinner/>) )
 
         axios  
         .put(`/api/project/rename/${ctx.projectId}`,data)
@@ -60,23 +60,8 @@ const ProjectSettingsDialogWindow = ({ displayComponent , actionListener }) => {
     }
 
 
-    const inputChangedHandler = ( event, controlName ) => {
-        const changed = {
-            ...controls,
-            [controlName]: {
-                ...controls[controlName],
-                value: event.target.value,
-                valid: checkValidity( event.target.value, controls[controlName].validation ),
-                touched: true
-            }
-        }
-        
-        setControls( changed );
-    }
-    
-
-    const formData = Object.keys( controls ).map( k => ( { id : k, config: controls[k] } ) )
-  
+    const inputChangedHandler = ( event, controlName ) => DefaultInputChangeHandler(event,controlName, setControls, controls);
+    const formData = DefaultFormDataGenerator(controls);
 
     return ( 
           <>

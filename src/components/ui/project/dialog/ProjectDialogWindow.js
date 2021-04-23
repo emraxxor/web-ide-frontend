@@ -1,5 +1,5 @@
-import { useContext, useEffect, useRef, useState } from "react";
-import { Button, Col, Form, Modal, Row } from 'react-bootstrap';
+import { useContext} from "react";
+import { Button, Col, Modal, Row } from 'react-bootstrap';
 import { ProjectContext } from "../../../../context/ProjectContext";
 import { ProjectDialogContext } from "../../../../context/ProjectDialogContext";
 
@@ -8,7 +8,7 @@ import { ProjectDialogContext } from "../../../../context/ProjectDialogContext";
  * @author Attila Barna 
  */
 const ProjectDialogWindow = () => {
-    const ptx = useContext(ProjectContext)
+    useContext(ProjectContext);
     const ctx = useContext(ProjectDialogContext)
 
     function handleModalCloseEvent(e) {

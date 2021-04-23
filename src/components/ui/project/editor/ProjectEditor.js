@@ -25,7 +25,7 @@ import ProjectRenameDirectory from "./ProjectRenameDirectory";
  * 
  * @author Attila Barna 
  */
-const ProjectEditor = ( props, children ) => {
+const ProjectEditor = ( props) => {
     const ctx = useContext(ProjectContext)
     const browser = useRef(null)
 
@@ -51,11 +51,11 @@ const ProjectEditor = ( props, children ) => {
         <ProjectDialogContextProvider>
                 {ctx.projectSpinner}
 
-                <ProjectCreateNewDirectory></ProjectCreateNewDirectory>
-                <ProjectSettingsDialogWindow></ProjectSettingsDialogWindow>
-                <ProjectCommandDialog></ProjectCommandDialog>
-                <ProjectDialogWindow></ProjectDialogWindow>
-                <ProjectRenameDirectory></ProjectRenameDirectory>
+                <ProjectCreateNewDirectory/>
+                <ProjectSettingsDialogWindow/>
+                <ProjectCommandDialog/>
+                <ProjectDialogWindow/>
+                <ProjectRenameDirectory/>
 
                 <Row md={12} xs={4} className='mt-5'>
                     <Col md={12}>
@@ -64,13 +64,13 @@ const ProjectEditor = ( props, children ) => {
                                 Workdir: {ctx.workdir}
                             </Col>
                             <Col md={10}>
-                                <ProjectNavbar></ProjectNavbar>
+                                <ProjectNavbar/>
                             </Col>
                         </Row>
                         <Row>
 
                             <Col md={2}>
-                                <RecursiveTree data={ctx.treeData}></RecursiveTree>
+                                <RecursiveTree data={ctx.treeData}/>
                                 {/*<Button variant="primary" onClick={e => ctx.refreshDirectory()}>Refresh</Button>*/}
                             </Col>
                             <Col md={10}>

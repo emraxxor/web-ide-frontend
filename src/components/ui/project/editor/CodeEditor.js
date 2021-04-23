@@ -6,13 +6,12 @@ import { ProjectContext } from "../../../../context/ProjectContext";
 import ProjectCreateNewFile from "./ProjectCreateNewFile";
 
 /**
- * 
- * @param {*} props 
- * @param {*} children
- * 
- * @author Attila Barna 
+ *
+ * @param {*} props
+ *
+ * @author Attila Barna
  */
-const CodeEditor = ( props, children ) => {
+const CodeEditor = ( props) => {
 
     const editorRef = useRef(null)
     const monacoRef = useRef(null)
@@ -41,7 +40,7 @@ const CodeEditor = ( props, children ) => {
                         }
                     }},
                     editorRef.current.getValue()
-                ).then( res => ctx.refreshProjectDirectory() );
+                ).then( () => ctx.refreshProjectDirectory() );
             }
             setDisplayNewFileComponent(false)
     }
@@ -53,13 +52,18 @@ const CodeEditor = ( props, children ) => {
         if ( editor ) {
             editor.addCommand(monaco.KeyMod.CtrlCmd + monaco.KeyCode.KEY_S, () => {                
                 if ( props && props.item && props.item.item.name ) {
-                    ctx.saveProjectFile({item: {...props.item.item, componentId:item.componentId}}, editor.getValue()  )
+                    ctx.saveProjectFile({
+                        item: {
+                            ...props.item.item,
+                             componentId: item.componentId
+                        }
+                    }, editor.getValue()).then(r => console.debug(r))
                 } else {
                     setDisplayNewFileComponent(true)
                 }
             });
     
-            editor.onDidChangeModelContent( (e) => {
+            editor.onDidChangeModelContent( () => {
                 ctx.actionOnProjectEditor({...props, ...{action: 'change'}})
             });
         }
@@ -69,7 +73,7 @@ const CodeEditor = ( props, children ) => {
 
     return (
         <>
-        <ProjectCreateNewFile displayComponent={displayNewFileComponent} actionListener={handleFileDialogActionListener}></ProjectCreateNewFile>
+        <ProjectCreateNewFile displayComponent={displayNewFileComponent} actionListener={handleFileDialogActionListener}/>
         <Row>
             <Col>
                     <Editor

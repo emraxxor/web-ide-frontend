@@ -40,7 +40,7 @@ export const setProjectTree = (tree) => {
 }
 
 export const setWorkingDirectory = ( folder, name ) => {
-    if ( folder == '/' ) 
+    if ( folder === '/' )
         folder = '';
     
 

@@ -27,7 +27,7 @@ const File = ({ name, item }) => {
 
   function handleFileDialogActionListener(action) {
     if ( action.type === ACTION.SAVE ) {
-       ctx.renameProjectFile(item, {action})
+       ctx.renameProjectFile(item, {action}).then(r => console.debug(r))
     }
     setDisplayDialog(false)
   }
@@ -49,21 +49,17 @@ const File = ({ name, item }) => {
       action: 'rename',
       text : 'Rename'
      },
-     {
-      action: 'properties',
-      text : 'Properties'
-     }
   ]
 
   let ext = name.split('.')[1];
 
   return (
     <>
-    <ProjectRenameFile displayComponent={displayDialog} item={item} actionListener={handleFileDialogActionListener} ></ProjectRenameFile>
+    <ProjectRenameFile displayComponent={displayDialog} item={item} actionListener={handleFileDialogActionListener} />
     <div onClick={handleClick} className="file">
       {FILE_ICONS[ext] || <AiOutlineFile />}
       <span ref={contextMenuRef}>{name}</span>
-      <TreeContextMenu onItemClick={handleItemClick} contextMenuRef={contextMenuRef} items={items} ></TreeContextMenu>
+      <TreeContextMenu onItemClick={handleItemClick} contextMenuRef={contextMenuRef} items={items} />
     </div>
     </>
   );

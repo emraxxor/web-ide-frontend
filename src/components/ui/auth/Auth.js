@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import * as actions from '../../../store/auth/actions';
-import { DefaultFormInput } from '../input/FormInputElement';
+import {DefaultFormGenerator} from '../input/FormInputElement';
 import { Button, Card, Col, Form, Row, Alert } from 'react-bootstrap';
 import UIErrorHandler from '../handler/ErrorHandler';
 import axios from '../../../HttpClient';
@@ -77,20 +77,7 @@ class Auth extends Component {
 
     render () {
         let errorMessage = null
-        const fma = Object.keys( this.state.controls ).map( k => ( { id : k, config: this.state.controls[k] } ) ) 
-
-        let form = fma.map( fm => (
-            <DefaultFormInput
-                label={fm.config.label}
-                key={fm.id}
-                elementType={fm.config.elementType}
-                elementConfig={fm.config.elementConfig}
-                value={fm.config.value}
-                invalid={!fm.config.valid}
-                shouldValidate={fm.config.validation}
-                touched={fm.config.touched}
-                changed={( event ) => this.inputChangedHandler( event, fm.id )} />
-        ) )
+        const { form } = DefaultFormGenerator(this.state.controls);
 
         if (this.props.error) {
             errorMessage = ( 

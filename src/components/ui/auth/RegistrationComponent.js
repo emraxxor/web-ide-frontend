@@ -5,7 +5,7 @@ import UIErrorHandler from '../handler/ErrorHandler';
 import axios from '../../../HttpClient';
 import { checkValidity } from '../../../config/config';
 import { Redirect } from 'react-router-dom';
-import { DefaultFormInput } from '../input/FormInputElement';
+import {DefaultFormGenerator, DefaultFormInput} from '../input/FormInputElement';
  
 /**
  * Registration component is responsible for the registration.
@@ -116,7 +116,6 @@ class RegistrationComponent extends Component {
         }
     }
 
-
     inputChangedHandler = ( event, controlName ) => {
         const changed = {
             ...this.state.controls,
@@ -151,20 +150,7 @@ class RegistrationComponent extends Component {
 
     render () {
         let errorMessage = null
-        const fma = Object.keys( this.state.controls ).map( k => ( { id : k, config: this.state.controls[k] } ) ) 
-
-        let form = fma.map( fm => (
-            <DefaultFormInput
-                label={fm.config.label}
-                key={fm.id}
-                elementType={fm.config.elementType}
-                elementConfig={fm.config.elementConfig}
-                value={fm.config.value}
-                invalid={!fm.config.valid}
-                shouldValidate={fm.config.validation}
-                touched={fm.config.touched}
-                changed={( event ) => this.inputChangedHandler( event, fm.id )} />
-        ) )
+        const { form } = DefaultFormGenerator(this.state.controls);
 
         if (this.state.error.message) {
             errorMessage = ( 
@@ -215,7 +201,6 @@ class RegistrationComponent extends Component {
             </Row>
         )
     }
-
 }
 
 const states = state => {
@@ -225,8 +210,5 @@ const states = state => {
     }
 }
 
-const dispatches = dispatch => {
-    return {}
-}
 
-export default connect( states, dispatches )( UIErrorHandler( RegistrationComponent, axios ) )
+export default connect( states )( UIErrorHandler( RegistrationComponent, axios ) )

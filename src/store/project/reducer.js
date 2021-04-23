@@ -1,6 +1,5 @@
 import * as actionTypes from './actions';
 import { update } from '../utility';
-import axios from '../../HttpClient';
 
 const initialState = {
     currentProject: {
@@ -64,7 +63,7 @@ const reducer = ( state = initialState, action ) => {
         case actionTypes.SET_WORKING_DIRECTORY: return setWorkingDirectory(state, action)
         case actionTypes.SET_PROJECT_TREE: return setProjectTree(state, action)
         case actionTypes.SET_PROJECTS_STATE: return setProjectsState(state, action)
-        case actionTypes.ACTION_RESET_PROJECT: return actionResetProject(state, action)
+        case actionTypes.ACTION_RESET_PROJECT: return actionResetProject(state)
 
 
         default: return state;

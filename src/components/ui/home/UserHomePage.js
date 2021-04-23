@@ -5,7 +5,8 @@ import styled from 'styled-components';
 import axios from '../../../HttpClient';
 import UIErrorHandler from '../handler/ErrorHandler';
 import JSONPretty from 'react-json-prettify';
-import { Link, NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+import * as actions from '../../../store/project/actions';
 import Spinner from '../spinner/Spinner';
 
 const ProjectItem = styled.div`
@@ -25,7 +26,7 @@ class UserHomePage extends Component {
         project : {
             name: '',
         },
-        spinner  : (null)
+        spinner  : null
     }
 
     constructor(props) {
@@ -34,16 +35,15 @@ class UserHomePage extends Component {
     }
 
     componentDidMount() {
-         this.setSpinner((<Spinner></Spinner>))
+         this.setSpinner((<Spinner/>))
+         this.props.init()
     }
 
-
-    componentDidUpdate() {
+    componentDidUpdate(prevProps, prevState, snapshot) {
         if ( this.props.state === 'DONE' && this.state.state !== 'DONE' )  {
-            this.setSpinner((null))
+            this.setSpinner(null)
             this.setState({state:'DONE'})
         }
-        
     }
 
     onShowProject(project) {
@@ -67,7 +67,6 @@ class UserHomePage extends Component {
         if ( !this.props.isAuthenticated )
             return (<></>)
 
-      
         return (
             <>
             {this.state.spinner}
@@ -89,14 +88,12 @@ class UserHomePage extends Component {
             </Modal>
 
 
-            <Row>
+            <Row className={ ["mt-5"] }>
                 <Col md="6">
                        <Card>
                             <Card.Header as="h5">Projects</Card.Header>
                             <Card.Body>
                                 <Card.Title>Recent projects</Card.Title>
-
-                               
                             </Card.Body>
                         </Card>
                 </Col>
@@ -129,13 +126,16 @@ class UserHomePage extends Component {
 
 const states = state => {
     return {
+        isAuthenticated: state.auth.authenticated,
         projects: state.project.projects,
         state: state.project.state
     };
 };
 
 const dispatches = dispatch => {
-    return {};
+    return {
+        init: () => dispatch( actions.initProject() )
+    };
 };
 
 export default connect( states, dispatches )( UIErrorHandler( UserHomePage, axios ) );

@@ -25,7 +25,7 @@ const TreeContextMenu = ({ contextMenuRef, onItemClick,  items }) => {
       <Menu style={{  top: topPos, left: leftPos }}>
         {
             items.map( (e,ix) => (
-                 <TreeContextMenuItem key={ix} click={onItemClick} item={e} ></TreeContextMenuItem>
+                 <TreeContextMenuItem key={ix} click={onItemClick} item={e} />
             ))
         }
       </Menu>

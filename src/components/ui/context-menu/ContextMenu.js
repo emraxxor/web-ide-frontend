@@ -3,8 +3,7 @@ import { useEffect, useCallback, useState } from "react";
 /**
  * Simple context menu hook
  * 
- * @param {} outerRef
- * @author Attila Barna 
+ * @author Attila Barna
  */
 const useContextMenu = (outerRef) => {
   const [leftPos, setLeftPos] = useState("0px");

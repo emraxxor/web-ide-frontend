@@ -1,20 +1,16 @@
-import { Component } from 'react';
-import {   Col, ListGroup, Row, Card, Button } from 'react-bootstrap';
-import { connect } from 'react-redux';
 import styled from 'styled-components';
 import axios from '../../../../HttpClient';
+import Spinner from '../../../ui/spinner/Spinner';
 import UIErrorHandler from '../../handler/ErrorHandler';
-import Spinner from '../../spinner/Spinner';
-import * as actions from '../../../../store/project/actions';
-import { generatePath, Redirect } from 'react-router-dom';
-import NewProjectDialogWindow from './dialog/NewProjectDialogWindow'
-
+import JSONPretty from 'react-json-prettify';
+import {Col, ListGroup, Row, Card, Button, Modal} from 'react-bootstrap';
+import { connect } from 'react-redux';
+import { Component } from 'react';
 
 const ProjectItem = styled.div`
   cursor: pointer;
   overflow: hidden;
 `;
-
 
 const ProjectRemoveItem = styled.div`
   cursor: pointer;
@@ -24,13 +20,17 @@ const ProjectRemoveItem = styled.div`
 /**
  * @author Attila Barna
  */
-class ProjectBrowser extends Component {
+class AdminProjectBrowser extends Component {
 
     state = {
         state: 'INIT',
         spinner  : null,
         redirect: null,
-        newProjectDialog: false
+        project: {
+            name: ''
+        },
+        projects: [],
+        showProjectModal: false,
     }
 
     constructor(props) {
@@ -38,24 +38,32 @@ class ProjectBrowser extends Component {
     }
 
     componentDidMount() {
-         this.props.fetchProjects()
-         this.setSpinner((<Spinner/>))
+         this.fetchProjects()
     }
 
-
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if ( this.props.state === 'DONE' && this.state.state !== 'DONE' )  {
+        if ( this.state.state === 'END_FETCH' && this.state.state !== 'DONE' )  {
             this.setSpinner(null)
             this.setState({state:'DONE'})
-        } else if ( this.props.state === 'FETCH' && this.state.state !== 'FETCH' ) {
+        } else if ( this.state.state === 'START_FETCH' && this.state.state !== 'FETCH' ) {
             this.setSpinner((<Spinner/>))
             this.setState({state:'FETCH'})
         } 
-        
+    }
+    
+    fetchProjects() {
+        this.setState({state:'START_FETCH'})
+
+        axios  
+            .get(`/api/project`)
+            .then(e => {
+                this.setState({projects: e.data.object, state:'END_FETCH'})
+            })
+            .catch(e => console.error(e))
     }
 
     onShowProject(project) {
-        this.setState({redirect: <Redirect push to={generatePath("/project/:id", {id:project.id})} />  })
+        this.setState({...this.state, project, showProjectModal:true});
     }
 
     setSpinner(spinner) {
@@ -66,32 +74,18 @@ class ProjectBrowser extends Component {
         this.setState({...this.state,showProjectModal:false})
     }
 
-    handleClickOnNewProject(e) {
-        this.setState({...this.state, newProjectDialog: true})
-    }
-
-    handleNewProjectModalDialogWindowAction(event) {
-        if ( event.action.event.dialog.message === 'close' ) {
-            this.setState({...this.state, newProjectDialog: false})
-        } else if (  event.action.event.dialog.message === 'created'  ) {
-            this.setState({...this.state, newProjectDialog: false})
-            this.reloadProjects()
-        }
-    }
-
     reloadProjects() {
-        this.props.fetchProjects()
+        this.fetchProjects()
     }
 
     handleDeleteProject(project) {
         this.setSpinner((<Spinner/>))
 
         axios  
-        .delete(`/api/project/${project.id}`)
+        .delete(`/api/project/admin/${project.id}`)
         .then(resp =>  {
-            if ( resp.status === 200 && resp.data.code === 1 ) {
+            if ( resp.status === 200 && resp.data.code === 1 )
                 this.reloadProjects()
-            }
         })
         .catch( err => console.error(err) )
     }
@@ -107,32 +101,43 @@ class ProjectBrowser extends Component {
         return (
             <>
             {this.state.spinner}
-            <NewProjectDialogWindow displayComponent={this.state.newProjectDialog} actionListener={e => this.handleNewProjectModalDialogWindowAction(e)}/>
+            <Modal size="xl" show={this.state.showProjectModal} onHide={()=>this.handleCloseModalWindow()}>
+                <Modal.Header closeButton>
+                <Modal.Title>{this.state.project.name}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <JSONPretty json={this.state.project}/>
+                </Modal.Body>
+                <Modal.Footer>
+                <Button variant="secondary" onClick={()=>this.handleCloseModalWindow()}>
+                    Close
+                </Button>
+                </Modal.Footer>
+            </Modal>
+
             <Row>
                 <Col md={12} lg={12} className="mt-5">
                        <Card>
                             <Card.Header as="h5">Projects</Card.Header>
                             <Card.Body>
-                                <Card.Title>Active projects</Card.Title>
+                                <Card.Title>Projects</Card.Title>
                                 <ListGroup>
                                  {
-                                     this.props.projects.map(
+                                     this.state.projects.map(
                                         (e,ix) =>                     
                                                 (            
                                                     (
                                                         <div key={ix} style={ { display: 'flex' } }>          
                                                             <ListGroup.Item key={e.identifier} onClick={() => this.onShowProject(e)}  style={{width:'100%'}}><ProjectItem>{e.name} ( {e.identifier})</ProjectItem></ListGroup.Item>
-                                                            <Button><ProjectRemoveItem onClick={x => this.handleDeleteProject(e)}>X</ProjectRemoveItem></Button>
+                                                            <Button><ProjectRemoveItem onClick={() => this.handleDeleteProject(e)}>X</ProjectRemoveItem></Button>
                                                         </div>
                                                     )
                                                 )
                                     )
-                                 }
-
+                                }
                                 </ListGroup>
                             </Card.Body>
                             <Card.Footer>
-                                 <Button onClick={ (e) => this.handleClickOnNewProject(e)}>New Project</Button>
                             </Card.Footer>
                         </Card>
                 </Col>
@@ -142,21 +147,11 @@ class ProjectBrowser extends Component {
     }
 }
 
-
-
 const states = state => {
     return {
         isAuthenticated: state.auth.authenticated,
-        projects: state.project.projects,
-        state: state.project.state
     };
 };
 
-const dispatches = dispatch => {
-    return {
-        fetchProjects: () => dispatch( actions.initProject() )
-    };
-};
-
-export default connect( states, dispatches )( UIErrorHandler( ProjectBrowser, axios ) );
+export default connect( states )( UIErrorHandler( AdminProjectBrowser, axios ) );
 

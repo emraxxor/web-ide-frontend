@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { Button, Col, Form, Modal, Row } from 'react-bootstrap';
 import { ProjectContext } from "../../../../context/ProjectContext";
 import JSONPretty from 'react-json-prettify';
@@ -20,7 +20,7 @@ const ProjectCommandDialog = () => {
     }
 
     function onClickRunButton(e) {
-        ctx.setProjectSpinner( (<Spinner></Spinner>) )
+        ctx.setProjectSpinner( (<Spinner/>) )
         axios   
         .post(`/api/docker/container/exec`,{
             id : ctx.projectId,
@@ -51,7 +51,7 @@ const ProjectCommandDialog = () => {
                                                                 
                                 <Form.Group>
                                         <Form.Label>Command</Form.Label>
-                                        <Form.Control onKeyPress={ e => e.key === 'Enter' ? onClickRunButton(e) : e => {} } ref={command} type="text" placeholder="Command" />
+                                        <Form.Control onKeyPress={ e => e.key === 'Enter' ? onClickRunButton(e) : () => {} } ref={command} type="text" placeholder="Command" />
                                 </Form.Group>
                                 <Button variant="primary" type="submit" onClick={onClickRunButton}>
                                     Run
