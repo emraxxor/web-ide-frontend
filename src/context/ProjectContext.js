@@ -384,7 +384,7 @@ export default function ProjectContextProvider({ props, children }) {
     }
 
 
-    useEffect( () => refreshDirectory() , [files,workdir] )
+    useEffect( () => refreshDirectory(), [files,workdir] )
 
     useEffect(() => {
         store.dispatch(actionInitProject(id));

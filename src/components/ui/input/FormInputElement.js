@@ -21,7 +21,7 @@ export const DefaultFormDataGenerator = (controls) => {
     return Object.keys( controls ).map( k => ( { id : k, config: controls[k] } ) );
 }
 
-export const DefaultFormGenerator = (controls) => {
+export const DefaultFormGenerator = (controls , inputChangeHandler) => {
     let fma = DefaultFormDataGenerator(controls)
     return {
         form : fma.map( fm => (
@@ -34,7 +34,7 @@ export const DefaultFormGenerator = (controls) => {
                 invalid={!fm.config.valid}
                 shouldValidate={fm.config.validation}
                 touched={fm.config.touched}
-                changed={( event ) => this.inputChangedHandler( event, fm.id )} />
+                changed={( event ) => inputChangeHandler( event, fm.id ) } />
         ) ),
         extractedControls: fma
     }

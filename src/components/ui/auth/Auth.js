@@ -2,11 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import * as actions from '../../../store/auth/actions';
-import {DefaultFormGenerator} from '../input/FormInputElement';
+import {DefaultFormGenerator, DefaultInputChangeHandler} from '../input/FormInputElement';
 import { Button, Card, Col, Form, Row, Alert } from 'react-bootstrap';
 import UIErrorHandler from '../handler/ErrorHandler';
 import axios from '../../../HttpClient';
-import { checkValidity } from '../../../config/config';
 
 /**
  * Default authentication component
@@ -56,28 +55,19 @@ class Auth extends Component {
 
     }
     
-    inputChangedHandler = ( event, controlName ) => {
-        const changed = {
-            ...this.state.controls,
-            [controlName]: {
-                ...this.state.controls[controlName],
-                value: event.target.value,
-                valid: checkValidity( event.target.value, this.state.controls[controlName].validation ),
-                touched: true
-            }
-        }
-        this.setState( { controls: changed } )
-    }
-
     submitHandler = ( event ) => {
         event.preventDefault()
         this.props.onAuth( this.state.controls.email.value, this.state.controls.password.value )
     }
 
+    updateInputControlState = ( changed ) => {
+        this.setState({ ...this.state,  ...{ controls: changed } } )
+    }
 
     render () {
         let errorMessage = null
-        const { form } = DefaultFormGenerator(this.state.controls);
+        const inputChangedHandler = ( event, controlName ) => DefaultInputChangeHandler(event,controlName, this.updateInputControlState , this.state.controls );
+        const { form } = DefaultFormGenerator(this.state.controls, inputChangedHandler );
 
         if (this.props.error) {
             errorMessage = ( 
