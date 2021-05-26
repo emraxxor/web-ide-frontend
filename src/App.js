@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Redirect, Route, Switch, withRouter } from 'react-router-dom';
 import AsyncComponent from './components/async/AsyncComponent';
 import Auth from './components/ui/auth/Auth';
-import RegistrationComponent from './components/ui/auth/RegistrationComponent';
+import RegistrationComponent from './components/ui/registration/RegistrationComponent';
 import Logout from './components/ui/logout/Logout';
 import NavBar from './components/ui/nav/NavBar';
 import ProjectBrowser from './components/ui/project/list/ProjectBrowser';

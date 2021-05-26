@@ -14,7 +14,7 @@ import { actionRenewProject } from "../../../../../store/project/actions";
  * 
  * @author Attila Barna 
  */
-const ProjectNavbar = ( {  }) => {
+const ProjectNavbar = () => {
     
     const ptx = useContext(ProjectContext)
     const ctx = useContext(ProjectDialogContext)
@@ -81,7 +81,6 @@ const ProjectNavbar = ( {  }) => {
             }
         })
         .catch( err => console.error(err) )
-
     }
 
     const onClickProjectStart = (e) => {
@@ -129,7 +128,7 @@ const ProjectNavbar = ( {  }) => {
         })
     }
 
-    const openProjectInBrowser = (e) => {
+    const openProjectInBrowser = () => {
         if ( currentProject && currentProject.project && currentProject.project.containerElement ) {
             ptx.setBrowserData(null)
             inspect()
@@ -137,8 +136,15 @@ const ProjectNavbar = ( {  }) => {
     }
 
     const onClickBrowserRun = (e) => {
-        openProjectInBrowser(e)
+        openProjectInBrowser()
     }
+
+    useEffect( () => {
+        if ( ptx.reloadProjectBrowser ) {
+            openProjectInBrowser()
+            ptx.setReloadProjectBrowser(false);
+        }
+    } , [openProjectInBrowser, ptx, ptx.reloadProjectBrowser])
 
     useEffect( () => {
         if ( currentProject && currentProject.project && currentProject.project.containerElement ) {
@@ -163,10 +169,6 @@ const ProjectNavbar = ( {  }) => {
     },  [currentProject, browserData, navbarInit] )
 
 
-
-
-
-
     setTimeout( () => {
             if ( !document.querySelector("#project-init") ) {
                 store.dispatch(actionRenewProject(ptx.projectId));
@@ -183,7 +185,7 @@ const ProjectNavbar = ( {  }) => {
         if ( projectInspectedData && projectInspectedData.State && projectInspectedData.State.Status === 'running' ) {
             ptx.setBrowserData(projectInspectedData)
         }
-    }, [projectInspectedData] )
+    }, [projectInspectedData, ptx] )
 
 
     return ( 

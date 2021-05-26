@@ -7,6 +7,7 @@ import UIErrorHandler from '../handler/ErrorHandler';
 import JSONPretty from 'react-json-prettify';
 import { NavLink } from 'react-router-dom';
 import * as actions from '../../../store/project/actions';
+import * as userActions from '../../../store/auth/actions';
 import Spinner from '../spinner/Spinner';
 
 const ProjectItem = styled.div`
@@ -26,7 +27,8 @@ class UserHomePage extends Component {
         project : {
             name: '',
         },
-        spinner  : null
+        spinner  : null,
+        userPanel : null
     }
 
     constructor(props) {
@@ -37,6 +39,7 @@ class UserHomePage extends Component {
     componentDidMount() {
          this.setSpinner((<Spinner/>))
          this.props.init()
+         this.props.userInfo()
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -63,9 +66,20 @@ class UserHomePage extends Component {
     }
 
     render() {
-
         if ( !this.props.isAuthenticated )
             return (<></>)
+
+        if ( this.props.user && this.state.userPanel == null ) {
+            this.setState({userPanel: (
+                <>
+                    <p>Name: {this.props.user.firstName} {this.props.user.lastName ?? ''}</p>
+                    <p>Neptun id: {this.props.user.neptunId}</p>
+                    <p>Role: {this.props.user.role}</p>
+                    <p>E-mail: {this.props.user.userMail}</p>
+                </>
+                )
+            })
+        }
 
         return (
             <>
@@ -91,10 +105,13 @@ class UserHomePage extends Component {
             <Row className={ ["mt-5"] }>
                 <Col md="6">
                        <Card>
-                            <Card.Header as="h5">Projects</Card.Header>
+                            <Card.Header as="h5">User</Card.Header>
                             <Card.Body>
-                                <Card.Title>Recent projects</Card.Title>
+                                <Card.Title>User information</Card.Title>
                             </Card.Body>
+                           <Card.Body>
+                               {this.state.userPanel}
+                           </Card.Body>
                         </Card>
                 </Col>
                 <Col md="6">
@@ -128,13 +145,15 @@ const states = state => {
     return {
         isAuthenticated: state.auth.authenticated,
         projects: state.project.projects,
+        user: state.auth.user,
         state: state.project.state
     };
 };
 
 const dispatches = dispatch => {
     return {
-        init: () => dispatch( actions.initProject() )
+        init: () => dispatch( actions.initProject() ),
+        userInfo: () => dispatch(userActions.currentUserInfo())
     };
 };
 

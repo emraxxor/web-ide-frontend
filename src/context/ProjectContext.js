@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, {createContext, useCallback, useEffect, useState} from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import CodeEditor from "../components/ui/project/editor/CodeEditor";
@@ -28,6 +28,7 @@ export default function ProjectContextProvider({ props, children }) {
     const [containerInformation,setContainerInformaton] = useState(null)
     const [projectSpinner, setProjectSpinner] = useState((<></>))
     const [projectSettingsDialogWindow, setProjectSettingsDialogWindow] = useState(false)
+    const [reloadProjectBrowser, setReloadProjectBrowser ] = useState(false);
 
     const [tabs, setTabs] = useState(
         [
@@ -299,6 +300,16 @@ export default function ProjectContextProvider({ props, children }) {
         return null
     }
 
+    const findDirectory = useCallback( (tree, dirnames, depth, parent) => {
+        if ( depth === dirnames.length ) {
+            return {parent,tree};
+        } else {
+            const dirname = dirnames[depth]
+            parent = tree.find(e => e.type === 'folder' && e.name === dirname);
+            return findDirectory( parent.childrens , dirnames, depth + 1 , parent );
+        }
+    }, []);
+
     const refreshDirectory = () => {
         if ( workdir && files ) {
             const dirs = Array.from(workdir.split("/")).filter( e => e !== "");
@@ -324,7 +335,7 @@ export default function ProjectContextProvider({ props, children }) {
                         })
                     }
             });
-    
+
             if ( treeData.length === 0 || (treeData.length !== 0 && workdir === '/') ) {
                 setTreeData( data )
             } else {
@@ -332,7 +343,7 @@ export default function ProjectContextProvider({ props, children }) {
                 setTreeData(treeData)
             }
         }
-    }
+    };
 
     const ctx = {
         projectId : id,
@@ -349,6 +360,8 @@ export default function ProjectContextProvider({ props, children }) {
         currentProject,
         project,
         displayNewDirectoryDialog,
+        reloadProjectBrowser,
+        setReloadProjectBrowser,
         setDisplayNewDirectoryDialog,
         refreshDirectory,
         setBrowserData,
@@ -371,16 +384,6 @@ export default function ProjectContextProvider({ props, children }) {
         removeProjectDirectory,
         renameProjectDirectory,
         addNewTab : (tab) => setTabs([...tabs, tab])
-    }
-
-    const findDirectory = (tree,dirnames, depth, parent=tree) => {
-        if ( depth === dirnames.length ) {
-             return {parent,tree};
-         } else {
-             const dirname = dirnames[depth]
-             parent = tree.find(e => e.type === 'folder' && e.name === dirname); 
-             return findDirectory( parent.childrens , dirnames, depth + 1 , parent );
-         }
     }
 
 

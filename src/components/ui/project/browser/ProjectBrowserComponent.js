@@ -14,12 +14,11 @@ const Browser = React.forwardRef(( props, ref ) => {
     const iframe = useRef(null)
     const themeClass = theme === 'dark' ? 'dark' : 'light';
     const browserData = projectContext.browserData;
-  
-  
+
     const reload = () => {
-      setDefaultUrl(browserInput.current.value)
+        setDefaultUrl('');
+        projectContext.setReloadProjectBrowser(true);
     }
-   
 
     const openInNewWindow = () => {
       window.open(browserInput.current.value)
@@ -54,7 +53,7 @@ const Browser = React.forwardRef(( props, ref ) => {
       
     }, [defaultUrl] )
 
-    if ( !browserData || !defaultUrl ) 
+    if ( !browserData || !defaultUrl )
       return null
     
 
