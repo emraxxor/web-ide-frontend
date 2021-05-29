@@ -75,7 +75,7 @@ const NewProjectDialogWindow = ({ displayComponent , actionListener }) => {
         }})
     }
 
-    const updateForm = e => {
+    const updateForm = async e => {
         const data = Object.keys(controls).flatMap(e => controls[e]).map( (e,k) => ( { [e.name]: e['value'] } ) )
         .reduce((acc,curr)=>  (  {...acc,...curr} )   ,{})
 

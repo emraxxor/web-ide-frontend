@@ -8,7 +8,7 @@ import { DefaultFormInput } from '../input/FormInputElement';
 import Spinner from '../spinner/Spinner';
  
 /**
- * Registration component is responsible for the registration.
+ * Profile component is responsible for modifying user data..
  * 
  * @author Attila Barna
  */
@@ -75,7 +75,7 @@ class ProfileComponent extends Component {
             passwordConfirm: {
                 elementType: 'input',
                 label: 'Confirm password',
-                name: 'confirmPassword',
+                name: 'confirmUserPassword',
                 elementConfig: {
                     type: 'password',
                     placeholder: 'Confirm password'
@@ -266,7 +266,6 @@ class ProfileComponent extends Component {
 
         axios.put(api, data)
                 .then(response => {
-
                     if ( response.data && response.data.code === 1 ) {
                         this.setState( { ...this.state , ...{ success: true, error : {message: null} } } )
                     } else {

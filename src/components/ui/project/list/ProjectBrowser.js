@@ -84,7 +84,7 @@ class ProjectBrowser extends Component {
     }
 
     handleDeleteProject(project) {
-        this.setSpinner((<Spinner/>))
+        this.setSpinner((<Spinner/>));
 
         axios  
         .delete(`/api/project/${project.id}`)
@@ -122,7 +122,7 @@ class ProjectBrowser extends Component {
                                                     (
                                                         <div key={ix} style={ { display: 'flex' } }>          
                                                             <ListGroup.Item key={e.identifier} onClick={() => this.onShowProject(e)}  style={{width:'100%'}}><ProjectItem>{e.name} ( {e.identifier})</ProjectItem></ListGroup.Item>
-                                                            <Button><ProjectRemoveItem onClick={x => this.handleDeleteProject(e)}>X</ProjectRemoveItem></Button>
+                                                            <Button onClick={x => this.handleDeleteProject(e)}><ProjectRemoveItem>X</ProjectRemoveItem></Button>
                                                         </div>
                                                     )
                                                 )

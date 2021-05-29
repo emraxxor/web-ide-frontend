@@ -55,7 +55,7 @@ class AdminProjectBrowser extends Component {
         this.setState({state:'START_FETCH'})
 
         axios  
-            .get(`/api/project`)
+            .get(`/api/admin/project`)
             .then(e => {
                 this.setState({projects: e.data.object, state:'END_FETCH'})
             })
@@ -82,7 +82,7 @@ class AdminProjectBrowser extends Component {
         this.setSpinner((<Spinner/>))
 
         axios  
-        .delete(`/api/project/admin/${project.id}`)
+        .delete(`/api/admin/project/${project.id}`)
         .then(resp =>  {
             if ( resp.status === 200 && resp.data.code === 1 )
                 this.reloadProjects()
@@ -129,7 +129,7 @@ class AdminProjectBrowser extends Component {
                                                     (
                                                         <div key={ix} style={ { display: 'flex' } }>          
                                                             <ListGroup.Item key={e.identifier} onClick={() => this.onShowProject(e)}  style={{width:'100%'}}><ProjectItem>{e.name} ( {e.identifier})</ProjectItem></ListGroup.Item>
-                                                            <Button><ProjectRemoveItem onClick={() => this.handleDeleteProject(e)}>X</ProjectRemoveItem></Button>
+                                                            <Button onClick={() => this.handleDeleteProject(e)}><ProjectRemoveItem>X</ProjectRemoveItem></Button>
                                                         </div>
                                                     )
                                                 )
