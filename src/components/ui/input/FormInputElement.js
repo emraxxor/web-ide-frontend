@@ -1,12 +1,51 @@
 import React from 'react';
 import { FormControl, FormGroup, FormLabel } from 'react-bootstrap';
+import {checkValidity} from "../../../config/config";
+
+
+export const DefaultInputChangeHandler = (event, controlName, updateEventListener, controls) => {
+    const changed = {
+        ...controls,
+        [controlName]: {
+            ...controls[controlName],
+            value: event.target.value,
+            valid: checkValidity( event.target.value, controls[controlName].validation ),
+            touched: true
+        }
+    }
+
+    updateEventListener( changed );
+}
+
+export const DefaultFormDataGenerator = (controls) => {
+    return Object.keys( controls ).map( k => ( { id : k, config: controls[k] } ) );
+}
+
+export const DefaultFormGenerator = (controls , inputChangeHandler) => {
+    let fma = DefaultFormDataGenerator(controls)
+    return {
+        form : fma.map( fm => (
+            <DefaultFormInput
+                label={fm.config.label}
+                key={fm.id}
+                elementType={fm.config.elementType}
+                elementConfig={fm.config.elementConfig}
+                value={fm.config.value}
+                invalid={!fm.config.valid}
+                shouldValidate={fm.config.validation}
+                touched={fm.config.touched}
+                changed={( event ) => inputChangeHandler( event, fm.id ) } />
+        ) ),
+        extractedControls: fma
+    }
+}
 
 /**
  * @author Attila Barna
  * @param {*} props 
  */
-const input = ( props ) => {
-    let element = null
+export const DefaultFormInput = ( props ) => {
+    let element
     let currclasses = props.classes ?? []
     let invalid = false
 
@@ -20,7 +59,7 @@ const input = ( props ) => {
                 type="text"
                 className={currclasses.join(' ')}
                 {...props.elementConfig}
-                value={props.value}
+                value={props.value ?? ''}
                 isInvalid={invalid}
                 onChange={props.changed} />;
             break;
@@ -29,7 +68,7 @@ const input = ( props ) => {
                     type="password"
                     className={currclasses.join(' ')}
                     {...props.elementConfig}
-                    value={props.value}
+                    value={props.value ?? ''}
                     isInvalid={invalid}
                     onChange={props.changed} />;
                 break;
@@ -39,7 +78,7 @@ const input = ( props ) => {
                 rows={props.rows ?? 3}
                 className={currclasses.join(' ')}
                 {...props.elementConfig}
-                value={props.value}
+                value={props.value ?? ''}
                 isInvalid={invalid}
                 onChange={props.changed} />;
             break;
@@ -47,9 +86,9 @@ const input = ( props ) => {
             element = 
                 <FormControl
                     as="select" 
-                    multiple
+                    multiple={props.multiple}
                     className={currclasses.join(' ')}
-                    value={props.value}
+                    value={props.value ?? ''}
                     isInvalid={invalid}
                     onChange={props.changed}
                 >
@@ -66,13 +105,13 @@ const input = ( props ) => {
                 className={currclasses.join(' ')}
                 error={invalid}
                 {...props.elementConfig}
-                value={props.value}
+                value={props.value ?? ''}
                 isInvalid={invalid}
                 onChange={props.changed} />;
     }
 
     return (
-        <FormGroup  {...props.groupConfig}>
+        <FormGroup  {...props.groupConfig ?? null}>
             <FormLabel>{props.label}:</FormLabel>
             {element}        
         </FormGroup>
@@ -80,4 +119,3 @@ const input = ( props ) => {
 
 };
 
-export default input;

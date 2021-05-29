@@ -5,6 +5,10 @@ import styled from 'styled-components';
 import axios from '../../../HttpClient';
 import UIErrorHandler from '../handler/ErrorHandler';
 import JSONPretty from 'react-json-prettify';
+import { NavLink } from 'react-router-dom';
+import * as actions from '../../../store/project/actions';
+import * as userActions from '../../../store/auth/actions';
+import Spinner from '../spinner/Spinner';
 
 const ProjectItem = styled.div`
   cursor: pointer;
@@ -19,18 +23,30 @@ class UserHomePage extends Component {
 
     state = {
         showProjectModal: false,
+        state: 'INIT',
         project : {
             name: '',
-
-        }
+        },
+        spinner  : null,
+        userPanel : null
     }
 
+    constructor(props) {
+        super(props)
+        this.handleCloseModalWindow = this.handleCloseModalWindow.bind(this)
+    }
 
     componentDidMount() {
+         this.setSpinner((<Spinner/>))
+         this.props.init()
+         this.props.userInfo()
     }
 
-
-    componentDidUpdate() {
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if ( this.props.state === 'DONE' && this.state.state !== 'DONE' )  {
+            this.setSpinner(null)
+            this.setState({state:'DONE'})
+        }
     }
 
     onShowProject(project) {
@@ -41,42 +57,61 @@ class UserHomePage extends Component {
         });
     }
 
+    setSpinner(spinner) {
+        this.setState({spinner})
+    }
+
     handleCloseModalWindow() {
         this.setState({...this.state,showProjectModal:false})
     }
 
     render() {
-
         if ( !this.props.isAuthenticated )
             return (<></>)
 
+        if ( this.props.user && this.state.userPanel == null ) {
+            this.setState({userPanel: (
+                <>
+                    <p>Name: {this.props.user.firstName} {this.props.user.lastName ?? ''}</p>
+                    <p>Neptun id: {this.props.user.neptunId}</p>
+                    <p>Role: {this.props.user.role}</p>
+                    <p>E-mail: {this.props.user.userMail}</p>
+                </>
+                )
+            })
+        }
+
         return (
             <>
-            <Modal size="xl" show={this.state.showProjectModal} onHide={e => this.handleCloseModalWindow()}>
+            {this.state.spinner}
+            <Modal size="xl" show={this.state.showProjectModal} onHide={this.handleCloseModalWindow}>
                 <Modal.Header closeButton>
                 <Modal.Title>{this.state.project.name}</Modal.Title>
                 </Modal.Header>
-                <Modal.Body><JSONPretty json={this.state.project}/></Modal.Body>
+                <Modal.Body>
+                    <NavLink to={{ pathname: `/project/${this.state.project.id}` }}>
+                        <Button variant="primary">Open</Button>
+                    </NavLink>
+                    <JSONPretty json={this.state.project}/>
+                </Modal.Body>
                 <Modal.Footer>
-                <Button variant="secondary" onClick={ e => this.handleCloseModalWindow()}>
+                <Button variant="secondary" onClick={this.handleCloseModalWindow}>
                     Close
                 </Button>
                 </Modal.Footer>
             </Modal>
 
 
-            <Row>
+            <Row className={ ["mt-5"] }>
                 <Col md="6">
                        <Card>
-                            <Card.Header as="h5">Projects</Card.Header>
+                            <Card.Header as="h5">User</Card.Header>
                             <Card.Body>
-                                <Card.Title>Recent projects</Card.Title>
-
-                               
+                                <Card.Title>User information</Card.Title>
                             </Card.Body>
-                            <Card.Footer>
-                                <Button>New project</Button>
-                            </Card.Footer>
+                           <Card.Body>
+                               {this.state.userPanel}
+                           </Card.Body>
                         </Card>
                 </Col>
                 <Col md="6">
@@ -89,7 +124,7 @@ class UserHomePage extends Component {
                                  {
                                      this.props.projects.map(
                                         e => 
-                                                <ListGroup.Item key={e.identifier} onClick={x => this.onShowProject(e)} ><ProjectItem>{e.name} ( {e.identifier})</ProjectItem></ListGroup.Item>
+                                                <ListGroup.Item key={e.identifier} onClick={() => this.onShowProject(e)} ><ProjectItem>{e.name} ( {e.identifier})</ProjectItem></ListGroup.Item>
                                                 
                                     )
                                  }
@@ -108,12 +143,18 @@ class UserHomePage extends Component {
 
 const states = state => {
     return {
+        isAuthenticated: state.auth.authenticated,
         projects: state.project.projects,
+        user: state.auth.user,
+        state: state.project.state
     };
 };
 
 const dispatches = dispatch => {
-    return {};
+    return {
+        init: () => dispatch( actions.initProject() ),
+        userInfo: () => dispatch(userActions.currentUserInfo())
+    };
 };
 
 export default connect( states, dispatches )( UIErrorHandler( UserHomePage, axios ) );

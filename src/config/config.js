@@ -1,9 +1,9 @@
-export const PROXY = {
+ export const PROXY = {
     host: 'http://localhost',
     port: 8090
 }
 
-export const DefaultConfiguration = {
+ export const DefaultConfiguration = {
     USER_STORAGE_KEY : 'user',
     USER_ID : 'userId',
     NEPTUN_ID : 'neptunId',
@@ -11,7 +11,11 @@ export const DefaultConfiguration = {
     TOKEN_STORAGE_KEY : 'token'
  };
  
-
+ export const ACTION = {
+     SAVE : 'SAVE',
+     OK: 'OK',
+     CANCEL: 'CANCEL'
+ }
 
  export const DefaultLocalStorage = {
 
@@ -31,12 +35,23 @@ export const DefaultConfiguration = {
 
  }
 
+ export const DockerContainerImageOptions = [
+    {value: 'NPM', displayValue: 'NPM'},
+    {value: 'NODE', displayValue:'Node'},
+    {value: 'LARAVEL',displayValue:'Laravel'},
+    {value: 'PHP',displayValue:'PHP'},
+    {value: 'REACT',displayValue:'React'},
+    {value: 'ANGULAR',displayValue:'Angular'}
+ ]
 
  export const checkValidity = ( value, rules ) => {
     let isValid = true;
-    if ( !rules ) {
+
+    if ( !rules ) 
         return true;
-    }
+    
+    if ( !rules.required ) 
+        return true;
 
     if ( rules.required ) {
         isValid = value.trim() !== '' && isValid;

@@ -18,7 +18,7 @@ const UIErrorHandler = ( WComponent, axios ) => {
             error: null
         }
 
-        componentDidUpdate () {
+        componentDidUpdate(prevProps, prevState, snapshot) {
             this.reqInterceptor = axios.interceptors.request.use( req => {
                 this.setState( { error: null } );
                 return req;
@@ -30,7 +30,7 @@ const UIErrorHandler = ( WComponent, axios ) => {
         }
 
         componentWillUnmount () {
-            axios.interceptors.request.eject( this.reqInterceptor );
+            axios.interceptors.request.eject(  this.reqInterceptor );
             axios.interceptors.response.eject( this.resInterceptor );
         }
 

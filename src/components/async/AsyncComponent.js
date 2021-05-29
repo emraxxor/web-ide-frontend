@@ -17,8 +17,8 @@ const AsyncComponent = (eComponent) => {
         }
         
         render () {
-            const comp = this.state.component;
-            return comp ? <comp {...this.props} /> : null;
+            const Comp = this.state.component;
+            return Comp ? <Comp {...this.props} /> : null;
         }
     }
 }

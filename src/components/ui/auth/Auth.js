@@ -2,11 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import * as actions from '../../../store/auth/actions';
-import Input from '../input/FormInputElement';
+import {DefaultFormGenerator, DefaultInputChangeHandler} from '../input/FormInputElement';
 import { Button, Card, Col, Form, Row, Alert } from 'react-bootstrap';
 import UIErrorHandler from '../handler/ErrorHandler';
 import axios from '../../../HttpClient';
-import { checkValidity } from '../../../config/config';
 
 /**
  * Default authentication component
@@ -56,41 +55,19 @@ class Auth extends Component {
 
     }
     
-    inputChangedHandler = ( event, controlName ) => {
-        const changed = {
-            ...this.state.controls,
-            [controlName]: {
-                ...this.state.controls[controlName],
-                value: event.target.value,
-                valid: checkValidity( event.target.value, this.state.controls[controlName].validation ),
-                touched: true
-            }
-        }
-        this.setState( { controls: changed } )
-    }
-
     submitHandler = ( event ) => {
         event.preventDefault()
         this.props.onAuth( this.state.controls.email.value, this.state.controls.password.value )
     }
 
+    updateInputControlState = ( changed ) => {
+        this.setState({ ...this.state,  ...{ controls: changed } } )
+    }
 
     render () {
         let errorMessage = null
-        const fma = Object.keys( this.state.controls ).map( k => ( { id : k, config: this.state.controls[k] } ) ) 
-
-        let form = fma.map( fm => (
-            <Input
-                label={fm.config.label}
-                key={fm.id}
-                elementType={fm.config.elementType}
-                elementConfig={fm.config.elementConfig}
-                value={fm.config.value}
-                invalid={!fm.config.valid}
-                shouldValidate={fm.config.validation}
-                touched={fm.config.touched}
-                changed={( event ) => this.inputChangedHandler( event, fm.id )} />
-        ) )
+        const inputChangedHandler = ( event, controlName ) => DefaultInputChangeHandler(event,controlName, this.updateInputControlState , this.state.controls );
+        const { form } = DefaultFormGenerator(this.state.controls, inputChangedHandler );
 
         if (this.props.error) {
             errorMessage = ( 

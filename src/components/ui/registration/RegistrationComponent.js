@@ -1,18 +1,17 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import Input from '../input/FormInputElement';
 import { Button, Card, Col, Form, Row, Alert } from 'react-bootstrap';
 import UIErrorHandler from '../handler/ErrorHandler';
 import axios from '../../../HttpClient';
-import { checkValidity } from '../../../config/config';
 import { Redirect } from 'react-router-dom';
+import {DefaultFormGenerator, DefaultInputChangeHandler} from '../input/FormInputElement';
  
 /**
  * Registration component is responsible for the registration.
  * 
  * @author Attila Barna
  */
-class Registration extends Component {
+class RegistrationComponent extends Component {
 
     state = {
         error: {
@@ -116,20 +115,6 @@ class Registration extends Component {
         }
     }
 
-
-    inputChangedHandler = ( event, controlName ) => {
-        const changed = {
-            ...this.state.controls,
-            [controlName]: {
-                ...this.state.controls[controlName],
-                value: event.target.value,
-                valid: checkValidity( event.target.value, this.state.controls[controlName].validation ),
-                touched: true
-            }
-        }
-        this.setState({ ...this.state,  ...{ controls: changed } } )
-    }
-
     submitHandler = ( event ) => {
         event.preventDefault()
         const data = Object.keys(this.state.controls).flatMap(e => this.state.controls[e]).map( (e,k) => ( { [e.name]: e['value'] } ) )
@@ -149,22 +134,14 @@ class Registration extends Component {
         });
     }
 
+    updateInputControlState = ( changed ) => {
+        this.setState({ ...this.state,  ...{ controls: changed } } )
+    }
+
     render () {
         let errorMessage = null
-        const fma = Object.keys( this.state.controls ).map( k => ( { id : k, config: this.state.controls[k] } ) ) 
-
-        let form = fma.map( fm => (
-            <Input
-                label={fm.config.label}
-                key={fm.id}
-                elementType={fm.config.elementType}
-                elementConfig={fm.config.elementConfig}
-                value={fm.config.value}
-                invalid={!fm.config.valid}
-                shouldValidate={fm.config.validation}
-                touched={fm.config.touched}
-                changed={( event ) => this.inputChangedHandler( event, fm.id )} />
-        ) )
+        const inputChangedHandler = ( event, controlName ) => DefaultInputChangeHandler(event,controlName, this.updateInputControlState , this.state.controls );
+        const { form } = DefaultFormGenerator(this.state.controls, inputChangedHandler);
 
         if (this.state.error.message) {
             errorMessage = ( 
@@ -215,7 +192,6 @@ class Registration extends Component {
             </Row>
         )
     }
-
 }
 
 const states = state => {
@@ -225,8 +201,5 @@ const states = state => {
     }
 }
 
-const dispatches = dispatch => {
-    return {}
-}
 
-export default connect( states, dispatches )( UIErrorHandler( Registration, axios ) )
+export default connect( states )( UIErrorHandler( RegistrationComponent, axios ) )

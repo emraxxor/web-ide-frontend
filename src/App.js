@@ -2,15 +2,23 @@ import { Component } from 'react';
 import { Container } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { Redirect, Route, Switch, withRouter } from 'react-router-dom';
-import './App.css';
+import AsyncComponent from './components/async/AsyncComponent';
 import Auth from './components/ui/auth/Auth';
-import Registration from './components/ui/auth/Registration';
-import Home from './components/ui/home/Home';
+import RegistrationComponent from './components/ui/registration/RegistrationComponent';
 import Logout from './components/ui/logout/Logout';
 import NavBar from './components/ui/nav/NavBar';
+import ProjectBrowser from './components/ui/project/list/ProjectBrowser';
 import SideNavBar from './components/ui/sidenav/SideNavBar';
+import ProjectContextProvider from './context/ProjectContext';
 import * as actions from './store/auth/actions';
+import ProfileComponent from './components/ui/profile/ProfileComponent';
+import AdminProjectBrowser from './components/ui/admin/project/AdminProjectBrowser';
+import './App.css';
+import UserHomePage from './components/ui/home/UserHomePage';
 
+const AsyncProjectEditor = AsyncComponent(() => {
+  return import('./components/ui/project/editor/ProjectEditor');
+});
 
 /**
  * 
@@ -23,38 +31,49 @@ class App extends Component {
   }
 
   render () {
-    let routes = (
-      <Switch>
-        <Route path="/auth" component={Auth} />
-        <Route path="/registration" component={Registration} />
-        <Route path="/home" exact component={Home} />
-        <Route path="*" component={Home} />
-      </Switch>
+    let routes;
+
+    routes = (
+          <Switch>
+            <Route path="/auth" exact component={Auth} />
+            <Route path="/registration" exact component={RegistrationComponent} />
+            <Route path="/" exact component={Auth} />
+            { this.props.user !== null  ? <Redirect to="/" />  : null }
+          </Switch>
     );
 
-    if ( this.props.isAuthenticated ) {
+    if ( this.props.isAuthenticated  ) {
       routes = (
-        <Switch>
-          <Route path="/logout" component={Logout} />
-          <Route path="/home" exact component={Home} />
-          <Redirect to="/" />
-        </Switch>
+            <Switch>
+              <Route path="/logout" exact component={Logout} />
+              <Route path="/admin" exact component={AdminProjectBrowser} />
+              <Route path="/profile" exact component={ProfileComponent} />
+              <Route path="/projects" exact component={ProjectBrowser} />
+              <Route path="/project/:id">
+                  <ProjectContextProvider>
+                    <AsyncProjectEditor/>
+                  </ProjectContextProvider>
+              </Route>
+              <Route path="/" exact component={UserHomePage} />
+              <Redirect to="/" />
+            </Switch>
       );
     } 
 
     return (
-      <Container>
+      <Container fluid style={ { marginLeft : "75px", width: "auto" } } >
           <SideNavBar/>
           <NavBar/>
             {routes}
-        </Container>
+      </Container>
     );
   }
 }
 
 const states = state => {
   return {
-    isAuthenticated: state.auth.authenticated
+    isAuthenticated: state.auth.authenticated,
+    user: state.auth.user
   };
 };
 
